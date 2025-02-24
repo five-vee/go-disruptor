@@ -1,0 +1,24 @@
+linters:
+  enable:
+    - errcheck
+    - gosimple
+    - govet
+    - ineffassign
+    - staticcheck
+    - unused
+    - containedctx
+    - contextcheck
+    - decorder
+    - errname
+    - fatcontext
+    - gci
+    - goimports
+    - iface
+    - reassign
+    - recvcheck
+    - revive
+    - spancheck
+    - sqlclosecheck
+    - tagalign
+    - thelper
+  fast: true

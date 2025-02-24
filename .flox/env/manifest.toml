@@ -59,6 +59,9 @@ gox.pkg-path = "gox"
 # bash = ...
 # zsh  = ...
 # fish = ...
+zsh = '''
+  source <(golangci-lint completion zsh)
+'''
 
 
 ## Services ----------------------------------------------------------

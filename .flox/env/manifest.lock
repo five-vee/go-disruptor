@@ -17,7 +17,9 @@
       }
     },
     "hook": {},
-    "profile": {},
+    "profile": {
+      "zsh": "  source <(golangci-lint completion zsh)\n"
+    },
     "options": {
       "systems": [
         "aarch64-darwin",
