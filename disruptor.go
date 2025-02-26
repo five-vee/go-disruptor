@@ -76,21 +76,24 @@ type RingBuffer[T any] struct {
 // Blocks until the buffer is no longer full.
 func (rb *RingBuffer[T]) Publish(data T) {
 	for {
+		// Prepare to claim a sequence slot.
 		currentProducerSeq := rb.producerSeq.Load()
 		nextSeq := currentProducerSeq + 1
+
+		// Check buffer capacity.
 		currentConsumerSeq := rb.consumerSeq.Load()
 
-		// Check if buffer is full (producer can't wrap around consumer).
+		// Attempt to claim the slot.
 		if nextSeq > currentConsumerSeq+rb.size {
 			rb.yield()
 			continue
 		}
 
-		// Write data before updating producer sequence to ensure visibility.
+		// Write data.
 		index := nextSeq & rb.mask
 		rb.buffer[index] = data
 
-		// Atomic store ensures consumer sees sequence update after data write.
+		// Ensure visibility.
 		rb.producerSeq.Store(nextSeq)
 		return
 	}
@@ -100,20 +103,22 @@ func (rb *RingBuffer[T]) Publish(data T) {
 // Blocks until the buffer has available data.
 func (rb *RingBuffer[T]) Consume() T {
 	for {
+		// Check if there's available data.
 		currentConsumerSeq := rb.consumerSeq.Load()
 		currentProducerSeq := rb.producerSeq.Load()
-
 		if currentConsumerSeq >= currentProducerSeq {
 			rb.yield()
 			continue
 		}
 
+		// Obtain data.
 		nextSeq := currentConsumerSeq + 1
 		index := nextSeq & rb.mask
 		data := rb.buffer[index]
 
-		// Atomic store ensures producer sees consumer progress.
+		// Signal that the data has been consumed.
 		rb.consumerSeq.Store(nextSeq)
+
 		return data
 	}
 }
