@@ -57,8 +57,8 @@ func TestRingBufferBuilder_Build(t *testing.T) {
 	}
 }
 
-func TestRingBuffer_PublishAndConsume(t *testing.T) {
-	t.Run("publisher blocked by consumer", func(*testing.T) {
+func TestRingBuffer_produceAndConsume(t *testing.T) {
+	t.Run("produceer blocked by consumer", func(*testing.T) {
 		bufferSize := int64(2)
 		signal := make(chan struct{})
 
@@ -71,15 +71,15 @@ func TestRingBuffer_PublishAndConsume(t *testing.T) {
 			Build()
 
 		// Produce 2 items to fill the buffer.
-		rb.Publish(testData{1})
-		rb.Publish(testData{2})
+		rb.Produce(testData{1})
+		rb.Produce(testData{2})
 
-		// Launch a goroutine to publish a 3rd item, which should block.
-		var publishDone sync.WaitGroup
-		publishDone.Add(1)
+		// Launch a goroutine to produce a 3rd item, which should block.
+		var produceDone sync.WaitGroup
+		produceDone.Add(1)
 		go func() {
-			defer publishDone.Done()
-			rb.Publish(testData{3})
+			defer produceDone.Done()
+			rb.Produce(testData{3})
 		}()
 
 		// Wait for the signal that the producer is blocked.
@@ -91,11 +91,11 @@ func TestRingBuffer_PublishAndConsume(t *testing.T) {
 		// Signal that the producer is no longer blocked.
 		<-signal
 
-		// Wait for the publish goroutine to complete.
-		publishDone.Wait()
+		// Wait for the produce goroutine to complete.
+		produceDone.Wait()
 	})
 
-	t.Run("consumer blocked by publisher", func(*testing.T) {
+	t.Run("consumer blocked by produceer", func(*testing.T) {
 		bufferSize := int64(1)
 		signal := make(chan struct{})
 
@@ -119,7 +119,7 @@ func TestRingBuffer_PublishAndConsume(t *testing.T) {
 		<-signal
 
 		// Produce 1 item, which should unblock the consumer.
-		rb.Publish(testData{id: 1})
+		rb.Produce(testData{id: 1})
 
 		// Signal that the consumer is no longer blocked.
 		<-signal
@@ -128,19 +128,19 @@ func TestRingBuffer_PublishAndConsume(t *testing.T) {
 		consumeDone.Wait()
 	})
 
-	t.Run("consume observes publish", func(t *testing.T) {
+	t.Run("consume observes produce", func(t *testing.T) {
 		bufferSize := int64(2)
 		rb, _ := NewRingBufferBuilder[testData]().WithSize(bufferSize).Build()
 
 		// Produce 2 items.
-		var publishDone sync.WaitGroup
-		publishDone.Add(1)
+		var produceDone sync.WaitGroup
+		produceDone.Add(1)
 		go func() {
-			defer publishDone.Done()
-			rb.Publish(testData{id: 1})
-			rb.Publish(testData{id: 2})
+			defer produceDone.Done()
+			rb.Produce(testData{id: 1})
+			rb.Produce(testData{id: 2})
 		}()
-		publishDone.Wait()
+		produceDone.Wait()
 
 		// Consume 1 item.
 		data1 := rb.Consume()
@@ -155,17 +155,17 @@ func TestRingBuffer_PublishAndConsume(t *testing.T) {
 		}
 	})
 
-	t.Run("publish and consume multiple items", func(t *testing.T) {
+	t.Run("produce and consume multiple items", func(t *testing.T) {
 		bufferSize := int64(4)
 		rb, _ := NewRingBufferBuilder[testData]().WithSize(bufferSize).Build()
 
 		const numItems = 4
-		var publishDone sync.WaitGroup
-		publishDone.Add(1)
+		var produceDone sync.WaitGroup
+		produceDone.Add(1)
 		go func() {
-			defer publishDone.Done()
+			defer produceDone.Done()
 			for i := 1; i <= numItems; i++ {
-				rb.Publish(testData{id: i})
+				rb.Produce(testData{id: i})
 			}
 		}()
 
@@ -180,7 +180,7 @@ func TestRingBuffer_PublishAndConsume(t *testing.T) {
 				}
 			}
 		}()
-		publishDone.Wait()
+		produceDone.Wait()
 		consumeDone.Wait()
 	})
 }

@@ -72,9 +72,9 @@ type RingBuffer[T any] struct {
 	consumerSeq paddedAtomicInt64
 }
 
-// Publish adds an item to the buffer.
+// Produce adds an item to the buffer.
 // Blocks until the buffer is no longer full.
-func (rb *RingBuffer[T]) Publish(data T) {
+func (rb *RingBuffer[T]) Produce(data T) {
 	for {
 		// Prepare to claim a sequence slot.
 		currentProducerSeq := rb.producerSeq.Load()
