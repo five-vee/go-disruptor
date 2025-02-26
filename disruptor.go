@@ -60,13 +60,9 @@ func (b *RingBufferBuilder[T]) Build() (*RingBuffer[T], error) {
 // Size must be a power of two for efficient modulo operations using
 // bitmasking.
 type RingBuffer[T any] struct {
-	size int64
-	mask int64 // size - 1 for quick modulo operations.
-
-	// TODO: five-vee - make this dep injectable
-	// (e.g. for testing or customization).
-	yield func()
-
+	size        int64
+	mask        int64 // size - 1 for quick modulo operations.
+	yield       func()
 	buffer      []T
 	_           [cacheLinePadSize]byte
 	producerSeq int64 // Atomic: tracks the next write position.

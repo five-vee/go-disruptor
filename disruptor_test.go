@@ -58,7 +58,7 @@ func TestRingBufferBuilder_Build(t *testing.T) {
 }
 
 func TestRingBuffer_PublishAndConsume(t *testing.T) {
-	t.Run("producer blocked by consumer", func(*testing.T) {
+	t.Run("publisher blocked by consumer", func(*testing.T) {
 		bufferSize := int64(2)
 		signal := make(chan struct{})
 
@@ -95,7 +95,7 @@ func TestRingBuffer_PublishAndConsume(t *testing.T) {
 		publishDone.Wait()
 	})
 
-	t.Run("consumer blocked by producer", func(*testing.T) {
+	t.Run("consumer blocked by publisher", func(*testing.T) {
 		bufferSize := int64(1)
 		signal := make(chan struct{})
 
@@ -128,7 +128,7 @@ func TestRingBuffer_PublishAndConsume(t *testing.T) {
 		consumeDone.Wait()
 	})
 
-	t.Run("consumer observes producer", func(t *testing.T) {
+	t.Run("consume observes publish", func(t *testing.T) {
 		bufferSize := int64(2)
 		rb, _ := NewRingBufferBuilder[testData]().WithSize(bufferSize).Build()
 
@@ -145,17 +145,17 @@ func TestRingBuffer_PublishAndConsume(t *testing.T) {
 		// Consume 1 item.
 		data1 := rb.Consume()
 		if data1.id != 1 {
-			t.Errorf("Consumer consumed wrong data, got %+v, want %+v", data1, testData{1})
+			t.Errorf("Consume() consumed wrong data, got %+v, want %+v", data1, testData{1})
 		}
 
 		// Consume another item.
 		data2 := rb.Consume()
 		if data2.id != 2 {
-			t.Errorf("Consumer consumed wrong data, got %+v, want %+v", data2, testData{2})
+			t.Errorf("Consume() consumed wrong data, got %+v, want %+v", data2, testData{2})
 		}
 	})
 
-	t.Run("produce and consume multiple items", func(t *testing.T) {
+	t.Run("publish and consume multiple items", func(t *testing.T) {
 		bufferSize := int64(4)
 		rb, _ := NewRingBufferBuilder[testData]().WithSize(bufferSize).Build()
 
@@ -176,7 +176,7 @@ func TestRingBuffer_PublishAndConsume(t *testing.T) {
 			for i := 1; i <= numItems; i++ {
 				data := rb.Consume()
 				if data.id != i {
-					t.Errorf("Consumer consumed wrong data, got %+v, want %+v", data, testData{i})
+					t.Errorf("Consume() consumed wrong data, got %+v, want %+v", data, testData{i})
 				}
 			}
 		}()
