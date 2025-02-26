@@ -5,64 +5,64 @@ import (
 	"testing"
 )
 
-type testData struct {
-	id int
-}
-
-func TestRingBufferBuilder_Build(t *testing.T) {
+func TestMultiProducerBuilder_Build(t *testing.T) {
 	testCases := []struct {
 		name    string
-		builder *RingBufferBuilder[testData]
+		builder *MultiProducerBuilder[int]
 		wantErr bool
 	}{
 		{
 			name:    "valid size and default yield",
-			builder: NewRingBufferBuilder[testData]().WithSize(8),
+			builder: NewMultiProducerBuilder[int]().WithSize(8),
 			wantErr: false,
 		},
 		{
 			name: "valid size and custom yield",
-			builder: NewRingBufferBuilder[testData]().WithSize(8).WithYield(func() {
+			builder: NewMultiProducerBuilder[int]().WithSize(8).WithYield(func() {
 				// Custom yield implementation (no-op for testing)
 			}),
 			wantErr: false,
 		},
 		{
 			name:    "invalid size - not power of two",
-			builder: NewRingBufferBuilder[testData]().WithSize(7),
+			builder: NewMultiProducerBuilder[int]().WithSize(7),
 			wantErr: true,
 		},
 		{
 			name:    "invalid size - zero",
-			builder: NewRingBufferBuilder[testData]().WithSize(0),
+			builder: NewMultiProducerBuilder[int]().WithSize(0),
 			wantErr: true,
 		},
 		{
 			name:    "invalid size - negative",
-			builder: NewRingBufferBuilder[testData]().WithSize(-8),
+			builder: NewMultiProducerBuilder[int]().WithSize(-8),
 			wantErr: true,
 		},
 	}
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			rb, err := tc.builder.Build()
+			sp, err := tc.builder.Build()
 			if (err != nil) != tc.wantErr {
 				t.Fatalf("RingBufferBuilder.Build() error = %v, wantErr %v", err, tc.wantErr)
 			}
-			if !tc.wantErr && rb == nil {
-				t.Fatalf("RingBufferBuilder.Build() returned nil RingBuffer, want non-nil")
+			if !tc.wantErr && sp == nil {
+				t.Fatalf("RingBufferBuilder.Build() returned nil MultiProducer, want non-nil")
 			}
 		})
 	}
 }
 
-func TestRingBuffer_produceAndConsume(t *testing.T) {
-	t.Run("produceer blocked by consumer", func(*testing.T) {
+// Functional tests.
+func TestMultiProducer_ProduceAndConsume(t *testing.T) {
+	type testData struct {
+		id int
+	}
+	t.Run("producer blocked by consumer", func(*testing.T) {
 		bufferSize := int64(2)
 		signal := make(chan struct{})
 
-		rb, _ := NewRingBufferBuilder[testData]().
+		sp, _ := NewMultiProducerBuilder[testData]().
 			WithSize(bufferSize).
 			WithYield(func() {
 				signal <- struct{}{} // Signal that the producer is blocked.
@@ -71,22 +71,22 @@ func TestRingBuffer_produceAndConsume(t *testing.T) {
 			Build()
 
 		// Produce 2 items to fill the buffer.
-		rb.Produce(testData{1})
-		rb.Produce(testData{2})
+		sp.Produce(testData{1})
+		sp.Produce(testData{2})
 
 		// Launch a goroutine to produce a 3rd item, which should block.
 		var produceDone sync.WaitGroup
 		produceDone.Add(1)
 		go func() {
 			defer produceDone.Done()
-			rb.Produce(testData{3})
+			sp.Produce(testData{3})
 		}()
 
 		// Wait for the signal that the producer is blocked.
 		<-signal
 
 		// Consume 1 item, which should unblock the producer.
-		_ = rb.Consume()
+		_ = sp.Consume()
 
 		// Signal that the producer is no longer blocked.
 		<-signal
@@ -99,7 +99,7 @@ func TestRingBuffer_produceAndConsume(t *testing.T) {
 		bufferSize := int64(1)
 		signal := make(chan struct{})
 
-		rb, _ := NewRingBufferBuilder[testData]().
+		sp, _ := NewMultiProducerBuilder[testData]().
 			WithSize(bufferSize).
 			WithYield(func() {
 				signal <- struct{}{} // Signal that the consumer is blocked.
@@ -112,14 +112,14 @@ func TestRingBuffer_produceAndConsume(t *testing.T) {
 		consumeDone.Add(1)
 		go func() {
 			defer consumeDone.Done()
-			_ = rb.Consume()
+			_ = sp.Consume()
 		}()
 
 		// Wait for the signal that the consumer is blocked.
 		<-signal
 
 		// Produce 1 item, which should unblock the consumer.
-		rb.Produce(testData{id: 1})
+		sp.Produce(testData{id: 1})
 
 		// Signal that the consumer is no longer blocked.
 		<-signal
@@ -128,28 +128,28 @@ func TestRingBuffer_produceAndConsume(t *testing.T) {
 		consumeDone.Wait()
 	})
 
-	t.Run("consume observes produce", func(t *testing.T) {
+	t.Run("consumer observes producer", func(t *testing.T) {
 		bufferSize := int64(2)
-		rb, _ := NewRingBufferBuilder[testData]().WithSize(bufferSize).Build()
+		sp, _ := NewMultiProducerBuilder[testData]().WithSize(bufferSize).Build()
 
 		// Produce 2 items.
 		var produceDone sync.WaitGroup
 		produceDone.Add(1)
 		go func() {
 			defer produceDone.Done()
-			rb.Produce(testData{id: 1})
-			rb.Produce(testData{id: 2})
+			sp.Produce(testData{id: 1})
+			sp.Produce(testData{id: 2})
 		}()
 		produceDone.Wait()
 
 		// Consume 1 item.
-		data1 := rb.Consume()
+		data1 := sp.Consume()
 		if data1.id != 1 {
 			t.Errorf("Consume() consumed wrong data, got %+v, want %+v", data1, testData{1})
 		}
 
 		// Consume another item.
-		data2 := rb.Consume()
+		data2 := sp.Consume()
 		if data2.id != 2 {
 			t.Errorf("Consume() consumed wrong data, got %+v, want %+v", data2, testData{2})
 		}
@@ -157,7 +157,7 @@ func TestRingBuffer_produceAndConsume(t *testing.T) {
 
 	t.Run("produce and consume multiple items", func(t *testing.T) {
 		bufferSize := int64(4)
-		rb, _ := NewRingBufferBuilder[testData]().WithSize(bufferSize).Build()
+		sp, _ := NewSingleProducerBuilder[testData]().WithSize(bufferSize).Build()
 
 		const numItems = 4
 		var produceDone sync.WaitGroup
@@ -165,7 +165,7 @@ func TestRingBuffer_produceAndConsume(t *testing.T) {
 		go func() {
 			defer produceDone.Done()
 			for i := 1; i <= numItems; i++ {
-				rb.Produce(testData{id: i})
+				sp.Produce(testData{id: i})
 			}
 		}()
 
@@ -174,7 +174,7 @@ func TestRingBuffer_produceAndConsume(t *testing.T) {
 		go func() {
 			defer consumeDone.Done()
 			for i := 1; i <= numItems; i++ {
-				data := rb.Consume()
+				data := sp.Consume()
 				if data.id != i {
 					t.Errorf("Consume() consumed wrong data, got %+v, want %+v", data, testData{i})
 				}
@@ -183,4 +183,33 @@ func TestRingBuffer_produceAndConsume(t *testing.T) {
 		produceDone.Wait()
 		consumeDone.Wait()
 	})
+}
+
+// Smoke test to provide coverage of concurrent producers/consumer.
+func BenchmarkMultiProducer_SmokeTest(b *testing.B) {
+	type testData struct{}
+	mp, _ := NewMultiProducerBuilder[testData]().WithSize(4).Build()
+	// 2 producers, 1 consumer.
+	var wg sync.WaitGroup
+	wg.Add(3)
+	b.ResetTimer()
+	go func() {
+		defer wg.Done()
+		for range b.N {
+			mp.Produce(testData{})
+		}
+	}()
+	go func() {
+		defer wg.Done()
+		for range b.N {
+			mp.Produce(testData{})
+		}
+	}()
+	go func() {
+		defer wg.Done()
+		for i := 0; i < 2*b.N; i++ {
+			_ = mp.Consume()
+		}
+	}()
+	wg.Wait()
 }
