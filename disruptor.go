@@ -9,8 +9,6 @@ import (
 	"sync/atomic"
 )
 
-const cacheLinePadSize = 64
-
 // RingBufferBuilder builds a RingBuffer.
 type RingBufferBuilder[T any] struct {
 	size  int64
@@ -55,6 +53,11 @@ func (b *RingBufferBuilder[T]) Build() (*RingBuffer[T], error) {
 	}, nil
 }
 
+type paddedAtomicInt64 struct {
+	atomic.Int64
+	_ [56]byte // cache line padding (64 bytes total)
+}
+
 // RingBuffer implements a single-producer, single-consumer lock-free ring
 // buffer.
 // Size must be a power of two for efficient modulo operations using
@@ -64,20 +67,18 @@ type RingBuffer[T any] struct {
 	mask        int64 // size - 1 for quick modulo operations.
 	yield       func()
 	buffer      []T
-	_           [cacheLinePadSize]byte
-	producerSeq int64 // Atomic: tracks the next write position.
-	_           [cacheLinePadSize]byte
-	consumerSeq int64 // Atomic: tracks the last read position.
-	_           [cacheLinePadSize]byte
+	_           [64]byte // cache line padding
+	producerSeq paddedAtomicInt64
+	consumerSeq paddedAtomicInt64
 }
 
 // Publish adds an item to the buffer.
 // Blocks until the buffer is no longer full.
 func (rb *RingBuffer[T]) Publish(data T) {
 	for {
-		currentProducerSeq := atomic.LoadInt64(&rb.producerSeq)
+		currentProducerSeq := rb.producerSeq.Load()
 		nextSeq := currentProducerSeq + 1
-		currentConsumerSeq := atomic.LoadInt64(&rb.consumerSeq)
+		currentConsumerSeq := rb.consumerSeq.Load()
 
 		// Check if buffer is full (producer can't wrap around consumer).
 		if nextSeq > currentConsumerSeq+rb.size {
@@ -90,7 +91,7 @@ func (rb *RingBuffer[T]) Publish(data T) {
 		rb.buffer[index] = data
 
 		// Atomic store ensures consumer sees sequence update after data write.
-		atomic.StoreInt64(&rb.producerSeq, nextSeq)
+		rb.producerSeq.Store(nextSeq)
 		return
 	}
 }
@@ -99,8 +100,8 @@ func (rb *RingBuffer[T]) Publish(data T) {
 // Blocks until the buffer has available data.
 func (rb *RingBuffer[T]) Consume() T {
 	for {
-		currentConsumerSeq := atomic.LoadInt64(&rb.consumerSeq)
-		currentProducerSeq := atomic.LoadInt64(&rb.producerSeq)
+		currentConsumerSeq := rb.consumerSeq.Load()
+		currentProducerSeq := rb.producerSeq.Load()
 
 		if currentConsumerSeq >= currentProducerSeq {
 			rb.yield()
@@ -112,7 +113,7 @@ func (rb *RingBuffer[T]) Consume() T {
 		data := rb.buffer[index]
 
 		// Atomic store ensures producer sees consumer progress.
-		atomic.StoreInt64(&rb.consumerSeq, nextSeq)
+		rb.consumerSeq.Store(nextSeq)
 		return data
 	}
 }
