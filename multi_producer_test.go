@@ -207,7 +207,7 @@ func BenchmarkMultiProducer_SmokeTest(b *testing.B) {
 	}()
 	go func() {
 		defer wg.Done()
-		for i := 0; i < 2*b.N; i++ {
+		for range 2 * b.N {
 			_ = mp.Consume()
 		}
 	}()
