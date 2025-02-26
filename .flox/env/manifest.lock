@@ -31,19 +31,18 @@
     {
       "attr_path": "golangci-lint",
       "broken": false,
-      "derivation": "/nix/store/anb1lfsj0czggahjid2bbp9hhrgn3zp1-golangci-lint-1.64.5.drv",
+      "derivation": "/nix/store/pxljw0r1fyqviw4yldbgyfhsvw9ylmpj-golangci-lint-1.64.5.drv",
       "description": "Fast linters Runner for Go",
       "install_id": "golangci-lint",
       "license": "GPL-3.0-or-later",
-      "locked_url": "https://github.com/flox/nixpkgs?rev=73cf49b8ad837ade2de76f87eb53fc85ed5d4680",
+      "locked_url": "https://github.com/flox/nixpkgs?rev=0196c0175e9191c474c26ab5548db27ef5d34b05",
       "name": "golangci-lint-1.64.5",
       "pname": "golangci-lint",
-      "rev": "73cf49b8ad837ade2de76f87eb53fc85ed5d4680",
-      "rev_count": 755230,
-      "rev_date": "2025-02-18T08:17:47Z",
-      "scrape_date": "2025-02-20T02:25:42Z",
+      "rev": "0196c0175e9191c474c26ab5548db27ef5d34b05",
+      "rev_count": 758135,
+      "rev_date": "2025-02-24T03:24:50Z",
+      "scrape_date": "2025-02-25T02:25:54Z",
       "stabilities": [
-        "staging",
         "unstable"
       ],
       "unfree": false,
@@ -52,7 +51,7 @@
         "out"
       ],
       "outputs": {
-        "out": "/nix/store/jh2f466rbi0pgk6f3w8jdzy4qyccybz3-golangci-lint-1.64.5"
+        "out": "/nix/store/8bfm5nzryn3hxnd79s7j6qzkm1h6pxqy-golangci-lint-1.64.5"
       },
       "system": "aarch64-darwin",
       "group": "toplevel",
@@ -61,19 +60,18 @@
     {
       "attr_path": "golangci-lint",
       "broken": false,
-      "derivation": "/nix/store/dw9d9817krhqcw3qqlc92d825ynbprkr-golangci-lint-1.64.5.drv",
+      "derivation": "/nix/store/bydiv1168ckn25vc25696i9wsydgnbvh-golangci-lint-1.64.5.drv",
       "description": "Fast linters Runner for Go",
       "install_id": "golangci-lint",
       "license": "GPL-3.0-or-later",
-      "locked_url": "https://github.com/flox/nixpkgs?rev=73cf49b8ad837ade2de76f87eb53fc85ed5d4680",
+      "locked_url": "https://github.com/flox/nixpkgs?rev=0196c0175e9191c474c26ab5548db27ef5d34b05",
       "name": "golangci-lint-1.64.5",
       "pname": "golangci-lint",
-      "rev": "73cf49b8ad837ade2de76f87eb53fc85ed5d4680",
-      "rev_count": 755230,
-      "rev_date": "2025-02-18T08:17:47Z",
-      "scrape_date": "2025-02-20T02:25:42Z",
+      "rev": "0196c0175e9191c474c26ab5548db27ef5d34b05",
+      "rev_count": 758135,
+      "rev_date": "2025-02-24T03:24:50Z",
+      "scrape_date": "2025-02-25T02:25:54Z",
       "stabilities": [
-        "staging",
         "unstable"
       ],
       "unfree": false,
@@ -82,7 +80,7 @@
         "out"
       ],
       "outputs": {
-        "out": "/nix/store/63mvzwlqana7bfcy8jzmn3fvkn46k0p6-golangci-lint-1.64.5"
+        "out": "/nix/store/cmn4yiyf99kdjlw87sczf30ckpp84i1w-golangci-lint-1.64.5"
       },
       "system": "aarch64-linux",
       "group": "toplevel",
@@ -91,19 +89,18 @@
     {
       "attr_path": "golangci-lint",
       "broken": false,
-      "derivation": "/nix/store/k50mwipn1wlpa78w4jvggfpzy4y5cqsg-golangci-lint-1.64.5.drv",
+      "derivation": "/nix/store/q0q72ldqyvx8v0qsfvmbyddfhw8z8zp7-golangci-lint-1.64.5.drv",
       "description": "Fast linters Runner for Go",
       "install_id": "golangci-lint",
       "license": "GPL-3.0-or-later",
-      "locked_url": "https://github.com/flox/nixpkgs?rev=73cf49b8ad837ade2de76f87eb53fc85ed5d4680",
+      "locked_url": "https://github.com/flox/nixpkgs?rev=0196c0175e9191c474c26ab5548db27ef5d34b05",
       "name": "golangci-lint-1.64.5",
       "pname": "golangci-lint",
-      "rev": "73cf49b8ad837ade2de76f87eb53fc85ed5d4680",
-      "rev_count": 755230,
-      "rev_date": "2025-02-18T08:17:47Z",
-      "scrape_date": "2025-02-20T02:25:42Z",
+      "rev": "0196c0175e9191c474c26ab5548db27ef5d34b05",
+      "rev_count": 758135,
+      "rev_date": "2025-02-24T03:24:50Z",
+      "scrape_date": "2025-02-25T02:25:54Z",
       "stabilities": [
-        "staging",
         "unstable"
       ],
       "unfree": false,
@@ -112,7 +109,7 @@
         "out"
       ],
       "outputs": {
-        "out": "/nix/store/d662i9k8p2alplmxc3bqypc646x7wy1b-golangci-lint-1.64.5"
+        "out": "/nix/store/bcrp85xkdabziwslcgsls44mj8ngnqb6-golangci-lint-1.64.5"
       },
       "system": "x86_64-darwin",
       "group": "toplevel",
@@ -121,19 +118,18 @@
     {
       "attr_path": "golangci-lint",
       "broken": false,
-      "derivation": "/nix/store/473dn4zzp79k2lzq2yrhcj2gf0f7nazn-golangci-lint-1.64.5.drv",
+      "derivation": "/nix/store/b6977275c6v3k6vnwv4flsfq8n6pnrsb-golangci-lint-1.64.5.drv",
       "description": "Fast linters Runner for Go",
       "install_id": "golangci-lint",
       "license": "GPL-3.0-or-later",
-      "locked_url": "https://github.com/flox/nixpkgs?rev=73cf49b8ad837ade2de76f87eb53fc85ed5d4680",
+      "locked_url": "https://github.com/flox/nixpkgs?rev=0196c0175e9191c474c26ab5548db27ef5d34b05",
       "name": "golangci-lint-1.64.5",
       "pname": "golangci-lint",
-      "rev": "73cf49b8ad837ade2de76f87eb53fc85ed5d4680",
-      "rev_count": 755230,
-      "rev_date": "2025-02-18T08:17:47Z",
-      "scrape_date": "2025-02-20T02:25:42Z",
+      "rev": "0196c0175e9191c474c26ab5548db27ef5d34b05",
+      "rev_count": 758135,
+      "rev_date": "2025-02-24T03:24:50Z",
+      "scrape_date": "2025-02-25T02:25:54Z",
       "stabilities": [
-        "staging",
         "unstable"
       ],
       "unfree": false,
@@ -142,7 +138,7 @@
         "out"
       ],
       "outputs": {
-        "out": "/nix/store/25732rsdh49iwjrik69sb9cfhiza00b5-golangci-lint-1.64.5"
+        "out": "/nix/store/n1100w7c48bcllxbrws5jd01lpvhx77q-golangci-lint-1.64.5"
       },
       "system": "x86_64-linux",
       "group": "toplevel",
@@ -151,19 +147,18 @@
     {
       "attr_path": "gox",
       "broken": false,
-      "derivation": "/nix/store/dn1wvscd34zj9zi4sfqckcmlk79s601v-gox-1.0.1.drv",
+      "derivation": "/nix/store/bp5cck192mfrjlm8ndz719hjfq9g167g-gox-1.0.1.drv",
       "description": "Dead simple, no frills Go cross compile tool",
       "install_id": "gox",
       "license": "MPL-2.0",
-      "locked_url": "https://github.com/flox/nixpkgs?rev=73cf49b8ad837ade2de76f87eb53fc85ed5d4680",
+      "locked_url": "https://github.com/flox/nixpkgs?rev=0196c0175e9191c474c26ab5548db27ef5d34b05",
       "name": "gox-1.0.1",
       "pname": "gox",
-      "rev": "73cf49b8ad837ade2de76f87eb53fc85ed5d4680",
-      "rev_count": 755230,
-      "rev_date": "2025-02-18T08:17:47Z",
-      "scrape_date": "2025-02-20T02:25:42Z",
+      "rev": "0196c0175e9191c474c26ab5548db27ef5d34b05",
+      "rev_count": 758135,
+      "rev_date": "2025-02-24T03:24:50Z",
+      "scrape_date": "2025-02-25T02:25:54Z",
       "stabilities": [
-        "staging",
         "unstable"
       ],
       "unfree": false,
@@ -172,7 +167,7 @@
         "out"
       ],
       "outputs": {
-        "out": "/nix/store/a4wr7s2i50iy3syisdgn1f55qx0mkmgb-gox-1.0.1"
+        "out": "/nix/store/h32krqxpvd049w9g8gcc5h7f6lzk46jy-gox-1.0.1"
       },
       "system": "aarch64-darwin",
       "group": "toplevel",
@@ -181,19 +176,18 @@
     {
       "attr_path": "gox",
       "broken": false,
-      "derivation": "/nix/store/yfp814amch6ch7skh5l6dmpi3yjlq5ls-gox-1.0.1.drv",
+      "derivation": "/nix/store/4vsk6yx9k9gn1vr4q6ip8mbnjm40albj-gox-1.0.1.drv",
       "description": "Dead simple, no frills Go cross compile tool",
       "install_id": "gox",
       "license": "MPL-2.0",
-      "locked_url": "https://github.com/flox/nixpkgs?rev=73cf49b8ad837ade2de76f87eb53fc85ed5d4680",
+      "locked_url": "https://github.com/flox/nixpkgs?rev=0196c0175e9191c474c26ab5548db27ef5d34b05",
       "name": "gox-1.0.1",
       "pname": "gox",
-      "rev": "73cf49b8ad837ade2de76f87eb53fc85ed5d4680",
-      "rev_count": 755230,
-      "rev_date": "2025-02-18T08:17:47Z",
-      "scrape_date": "2025-02-20T02:25:42Z",
+      "rev": "0196c0175e9191c474c26ab5548db27ef5d34b05",
+      "rev_count": 758135,
+      "rev_date": "2025-02-24T03:24:50Z",
+      "scrape_date": "2025-02-25T02:25:54Z",
       "stabilities": [
-        "staging",
         "unstable"
       ],
       "unfree": false,
@@ -202,7 +196,7 @@
         "out"
       ],
       "outputs": {
-        "out": "/nix/store/ffyah0kjzzbx22209zwlg8pz6z1lh7az-gox-1.0.1"
+        "out": "/nix/store/829gxqxz4a4v9njk4afqyf890f362yfz-gox-1.0.1"
       },
       "system": "aarch64-linux",
       "group": "toplevel",
@@ -211,19 +205,18 @@
     {
       "attr_path": "gox",
       "broken": false,
-      "derivation": "/nix/store/hgpb3w6w17a5z9bqm31vcqp7scv87gr5-gox-1.0.1.drv",
+      "derivation": "/nix/store/653sq27wkcqrpzrbzj9i0jpda0qh5b6g-gox-1.0.1.drv",
       "description": "Dead simple, no frills Go cross compile tool",
       "install_id": "gox",
       "license": "MPL-2.0",
-      "locked_url": "https://github.com/flox/nixpkgs?rev=73cf49b8ad837ade2de76f87eb53fc85ed5d4680",
+      "locked_url": "https://github.com/flox/nixpkgs?rev=0196c0175e9191c474c26ab5548db27ef5d34b05",
       "name": "gox-1.0.1",
       "pname": "gox",
-      "rev": "73cf49b8ad837ade2de76f87eb53fc85ed5d4680",
-      "rev_count": 755230,
-      "rev_date": "2025-02-18T08:17:47Z",
-      "scrape_date": "2025-02-20T02:25:42Z",
+      "rev": "0196c0175e9191c474c26ab5548db27ef5d34b05",
+      "rev_count": 758135,
+      "rev_date": "2025-02-24T03:24:50Z",
+      "scrape_date": "2025-02-25T02:25:54Z",
       "stabilities": [
-        "staging",
         "unstable"
       ],
       "unfree": false,
@@ -232,7 +225,7 @@
         "out"
       ],
       "outputs": {
-        "out": "/nix/store/9r2dzclcqqz2fd4zf75vabxaysrsgsa6-gox-1.0.1"
+        "out": "/nix/store/6iw5y3sayan2a9z6rf2y9hqpij13dm29-gox-1.0.1"
       },
       "system": "x86_64-darwin",
       "group": "toplevel",
@@ -241,19 +234,18 @@
     {
       "attr_path": "gox",
       "broken": false,
-      "derivation": "/nix/store/djgrqb3h62ykqv9g8pv39dpd80xnsarw-gox-1.0.1.drv",
+      "derivation": "/nix/store/j3183ycjwgfisqhxzd2b4cb36mip4bvf-gox-1.0.1.drv",
       "description": "Dead simple, no frills Go cross compile tool",
       "install_id": "gox",
       "license": "MPL-2.0",
-      "locked_url": "https://github.com/flox/nixpkgs?rev=73cf49b8ad837ade2de76f87eb53fc85ed5d4680",
+      "locked_url": "https://github.com/flox/nixpkgs?rev=0196c0175e9191c474c26ab5548db27ef5d34b05",
       "name": "gox-1.0.1",
       "pname": "gox",
-      "rev": "73cf49b8ad837ade2de76f87eb53fc85ed5d4680",
-      "rev_count": 755230,
-      "rev_date": "2025-02-18T08:17:47Z",
-      "scrape_date": "2025-02-20T02:25:42Z",
+      "rev": "0196c0175e9191c474c26ab5548db27ef5d34b05",
+      "rev_count": 758135,
+      "rev_date": "2025-02-24T03:24:50Z",
+      "scrape_date": "2025-02-25T02:25:54Z",
       "stabilities": [
-        "staging",
         "unstable"
       ],
       "unfree": false,
@@ -262,7 +254,7 @@
         "out"
       ],
       "outputs": {
-        "out": "/nix/store/wcayvj0pn8lmvrmxdc3jhcr4fy4rb4z8-gox-1.0.1"
+        "out": "/nix/store/bvp5vm3aq3q9cn1y76fa15y94flyscl8-gox-1.0.1"
       },
       "system": "x86_64-linux",
       "group": "toplevel",
