@@ -186,28 +186,29 @@ func TestMultiProducer_ProduceAndConsume(t *testing.T) {
 }
 
 // Smoke test to provide coverage of concurrent producers/consumer.
-func BenchmarkMultiProducer_SmokeTest(b *testing.B) {
+// TODO: five-vee - verify that Consume() sees every Produce().
+func TestMultiProducer_SmokeTest(*testing.T) {
+	const n = 1_000_000
 	type testData struct{}
 	mp, _ := NewMultiProducerBuilder[testData]().WithSize(4).Build()
 	// 2 producers, 1 consumer.
 	var wg sync.WaitGroup
 	wg.Add(3)
-	b.ResetTimer()
 	go func() {
 		defer wg.Done()
-		for range b.N {
+		for range n {
 			mp.Produce(testData{})
 		}
 	}()
 	go func() {
 		defer wg.Done()
-		for range b.N {
+		for range n {
 			mp.Produce(testData{})
 		}
 	}()
 	go func() {
 		defer wg.Done()
-		for range 2 * b.N {
+		for range 2 * n {
 			_ = mp.Consume()
 		}
 	}()
