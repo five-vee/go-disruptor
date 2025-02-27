@@ -3,6 +3,8 @@ package disruptor
 import (
 	"sync"
 	"testing"
+
+	"github.com/google/go-cmp/cmp"
 )
 
 func TestSingleProducerBuilder_Build(t *testing.T) {
@@ -187,25 +189,49 @@ func TestSingleProducer_ProduceAndConsume(t *testing.T) {
 }
 
 // Smoke test to provide coverage of concurrent producer/consumer.
-// TODO: five-vee - verify that Consume() sees every Produce().
-func TestSingleProducer_SmokeTest(*testing.T) {
-	const n = 1_000_000
-	type testData struct{}
-	mp, _ := NewSingleProducerBuilder[testData]().WithSize(4).Build()
+func TestSingleProducer_SmokeTest(t *testing.T) {
+	const n = 500_000
+	const bufferSize = 1 << 12
+	type testData struct{ i int }
+	mp, _ := NewSingleProducerBuilder[testData]().WithSize(bufferSize).Build()
 	// 1 producer, 1 consumer.
 	var wg sync.WaitGroup
 	wg.Add(2)
 	go func() {
 		defer wg.Done()
-		for range n {
-			mp.Produce(testData{})
+		for i := 1; i <= n; i++ {
+			mp.Produce(testData{i})
 		}
 	}()
+	const diffLimit = 10 // don't show too many diffs
+	var (
+		totalDiffs int
+		wants      []int
+		gots       []int
+	)
 	go func() {
 		defer wg.Done()
-		for range n {
-			_ = mp.Consume()
+		for want := 1; want <= n; want++ {
+			got := mp.Consume()
+			if got.i == want {
+				continue
+			}
+			totalDiffs++
+			if len(gots) < diffLimit {
+				gots = append(gots, got.i)
+				wants = append(wants, want)
+			}
 		}
 	}()
 	wg.Wait()
+	diff := cmp.Diff(wants, gots)
+	if diff == "" {
+		return
+	}
+	if totalDiffs > diffLimit {
+		t.Errorf("Consume() received different data (-want +got, truncated to %d diffs):\n%s",
+			diffLimit, diff)
+	} else {
+		t.Errorf("Consume() received different data (-want +got):\n%s", diff)
+	}
 }

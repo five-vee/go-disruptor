@@ -1,8 +1,11 @@
 package disruptor
 
 import (
+	"strings"
 	"sync"
 	"testing"
+
+	"github.com/google/go-cmp/cmp"
 )
 
 func TestMultiProducerBuilder_Build(t *testing.T) {
@@ -186,31 +189,60 @@ func TestMultiProducer_ProduceAndConsume(t *testing.T) {
 }
 
 // Smoke test to provide coverage of concurrent producers/consumer.
-// TODO: five-vee - verify that Consume() sees every Produce().
-func TestMultiProducer_SmokeTest(*testing.T) {
-	const n = 1_000_000
-	type testData struct{}
-	mp, _ := NewMultiProducerBuilder[testData]().WithSize(4).Build()
+func TestMultiProducer_SmokeTest(t *testing.T) {
+	const n = 500_000
+	const bufferSize = 1 << 12
+	type testData struct{ i int }
+	mp, _ := NewMultiProducerBuilder[testData]().WithSize(bufferSize).Build()
 	// 2 producers, 1 consumer.
 	var wg sync.WaitGroup
 	wg.Add(3)
 	go func() {
 		defer wg.Done()
-		for range n {
-			mp.Produce(testData{})
+		for i := 1; i <= n; i += 2 {
+			mp.Produce(testData{i})
 		}
 	}()
 	go func() {
 		defer wg.Done()
-		for range n {
-			mp.Produce(testData{})
+		for i := 2; i <= n; i += 2 {
+			mp.Produce(testData{i})
 		}
 	}()
+	wants := func() map[int]struct{} {
+		m := make(map[int]struct{})
+		for i := 1; i <= n; i++ {
+			m[i] = struct{}{}
+		}
+		return m
+	}()
+	gots := make(map[int]struct{})
 	go func() {
 		defer wg.Done()
-		for range 2 * n {
-			_ = mp.Consume()
+		for range n {
+			gots[mp.Consume().i] = struct{}{}
 		}
 	}()
 	wg.Wait()
+	diff := cmp.Diff(wants, gots)
+	if diff == "" {
+		return
+	}
+	const diffLimit = 10 // limit the number of diff lines to show
+	var i int
+	cutOffIndex := strings.IndexFunc(diff, func(r rune) bool {
+		if r != '\n' {
+			return false
+		}
+		i++
+		return i == diffLimit
+	})
+	if cutOffIndex != -1 {
+		diff = diff[:cutOffIndex]
+	}
+	if i == diffLimit {
+		t.Errorf("Consume() received different data (-want +got, truncated to %d lines):\n%s", diffLimit, diff)
+	} else {
+		t.Errorf("Consume() received different data (-want +got):\n%s", diff)
+	}
 }
