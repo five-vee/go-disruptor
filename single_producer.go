@@ -57,10 +57,10 @@ type SingleProducer[T any] struct {
 	size     int64
 	mask     int64 // size - 1 for quick modulo operations.
 	yield    func()
-	buffer   []T
 	_        [64]byte // cache line padding
 	producer paddedAtomicInt64
 	consumer paddedAtomicInt64
+	buffer   []T
 }
 
 // Produce adds an item to the buffer.
