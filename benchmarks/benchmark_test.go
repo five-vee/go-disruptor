@@ -28,11 +28,12 @@ func (c smartystreetsConsumer) Consume(lower, upper int64) {
 	}
 }
 
-func BenchmarkSmartystreets_1_20(b *testing.B) {
-	ringBuffer := make([]object, 1<<20)
-	mask := int64((1 << 20) - 1)
+func BenchmarkSmartystreets_22(b *testing.B) {
+	const bufSize = 1 << 22
+	ringBuffer := make([]object, bufSize)
+	mask := int64(bufSize - 1)
 	disruptor := smartystreets.New(
-		smartystreets.WithCapacity(1<<20),
+		smartystreets.WithCapacity(bufSize),
 		smartystreets.WithConsumerGroup(smartystreetsConsumer{mask, ringBuffer}),
 	)
 	b.ResetTimer()
@@ -55,8 +56,8 @@ func BenchmarkSmartystreets_1_20(b *testing.B) {
 	wg.Wait()
 }
 
-func BenchmarkDisruptor_1_20(b *testing.B) {
-	const bufSize = 1 << 20
+func BenchmarkDisruptor_1_22(b *testing.B) {
+	const bufSize = 1 << 22
 	d, _ := fivevee.NewDisruptor[object](bufSize, consume)
 	var wg sync.WaitGroup
 	wg.Add(1)
@@ -75,11 +76,8 @@ func BenchmarkDisruptor_1_20(b *testing.B) {
 	wg.Wait()
 }
 
-func BenchmarkChannel_1_20(b *testing.B) {
-	c := make(chan object, 1<<20)
-	for range 1 << 19 {
-		c <- object{}
-	}
+func BenchmarkChannel_1_22(b *testing.B) {
+	c := make(chan object, 1<<22)
 	b.ResetTimer()
 	var wg sync.WaitGroup
 	wg.Add(1)
@@ -92,7 +90,7 @@ func BenchmarkChannel_1_20(b *testing.B) {
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
-		for range (1 << 19) + b.N {
+		for range b.N {
 			consume(<-c)
 		}
 	}()
