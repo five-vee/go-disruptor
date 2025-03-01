@@ -56,7 +56,7 @@ func BenchmarkSmartystreets_22(b *testing.B) {
 	wg.Wait()
 }
 
-func BenchmarkDisruptor_1_22(b *testing.B) {
+func BenchmarkDisruptor_22(b *testing.B) {
 	const bufSize = 1 << 22
 	d, _ := fivevee.NewDisruptor[object](bufSize, consume)
 	var wg sync.WaitGroup
@@ -76,7 +76,7 @@ func BenchmarkDisruptor_1_22(b *testing.B) {
 	wg.Wait()
 }
 
-func BenchmarkChannel_1_22(b *testing.B) {
+func BenchmarkChannel_22(b *testing.B) {
 	c := make(chan object, 1<<22)
 	b.ResetTimer()
 	var wg sync.WaitGroup
