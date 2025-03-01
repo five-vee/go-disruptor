@@ -1,7 +1,6 @@
 package benchmark_test
 
 import (
-	"sync"
 	"testing"
 
 	fivevee "github.com/five-vee/disruptor"
@@ -14,6 +13,21 @@ type object struct{ _ [16]byte }
 // without needing to deal with ring buffer internals.
 func consume[T any](item T) {
 	_ = item
+}
+
+func BenchmarkDisruptor_22(b *testing.B) {
+	const bufSize = 1 << 22
+	d, _ := fivevee.NewBuilder[object](bufSize).
+		WithReaderGroup(consume).
+		Build()
+	b.ResetTimer()
+	go func() {
+		defer d.Close()
+		for b.Loop() {
+			d.Write(object{})
+		}
+	}()
+	d.LoopRead()
 }
 
 // consumer to be used by the smartystreets disruptor.
@@ -32,67 +46,35 @@ func BenchmarkSmartystreets_22(b *testing.B) {
 	const bufSize = 1 << 22
 	ringBuffer := make([]object, bufSize)
 	mask := int64(bufSize - 1)
-	disruptor := smartystreets.New(
+	d := smartystreets.New(
 		smartystreets.WithCapacity(bufSize),
 		smartystreets.WithConsumerGroup(smartystreetsConsumer{mask, ringBuffer}),
 	)
+	produce := func() object {
+		return object{}
+	}
 	b.ResetTimer()
-	var wg sync.WaitGroup
-	wg.Add(1)
 	go func() {
-		defer wg.Done()
 		for range b.N {
-			sequence := disruptor.Reserve(1)
-			ringBuffer[sequence&mask] = object{}
-			disruptor.Commit(sequence, sequence)
+			sequence := d.Reserve(1)
+			o := produce()
+			ringBuffer[sequence&mask] = o
+			d.Commit(sequence, sequence)
 		}
-		_ = disruptor.Close()
+		_ = d.Close()
 	}()
-	wg.Add(1)
-	go func() {
-		defer wg.Done()
-		disruptor.Read()
-	}()
-	wg.Wait()
-}
-
-func BenchmarkDisruptor_22(b *testing.B) {
-	const bufSize = 1 << 22
-	d, _ := fivevee.NewDisruptor[object](bufSize, consume)
-	var wg sync.WaitGroup
-	wg.Add(1)
-	go func() {
-		defer wg.Done()
-		defer d.Close()
-		for b.Loop() {
-			d.Write(object{})
-		}
-	}()
-	wg.Add(1)
-	go func() {
-		defer wg.Done()
-		d.LoopRead()
-	}()
-	wg.Wait()
+	d.Read()
 }
 
 func BenchmarkChannel_22(b *testing.B) {
 	c := make(chan object, 1<<22)
 	b.ResetTimer()
-	var wg sync.WaitGroup
-	wg.Add(1)
 	go func() {
-		defer wg.Done()
 		for range b.N {
 			c <- object{}
 		}
 	}()
-	wg.Add(1)
-	go func() {
-		defer wg.Done()
-		for range b.N {
-			consume(<-c)
-		}
-	}()
-	wg.Wait()
+	for range b.N {
+		consume(<-c)
+	}
 }
