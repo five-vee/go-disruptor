@@ -43,8 +43,8 @@ goarch: arm64
 pkg: github.com/five-vee/disruptor/benchmarks
 cpu: Apple M3
 BenchmarkSmartystreets_22-8     423986880                2.824 ns/op           0 B/op          0 allocs/op
-BenchmarkDisruptor_1_22-8       303964519                3.976 ns/op           0 B/op          0 allocs/op
-BenchmarkChannel_1_22-8         42554761                28.55 ns/op            0 B/op          0 allocs/op
+BenchmarkDisruptor_22-8         303964519                3.976 ns/op           0 B/op          0 allocs/op
+BenchmarkChannel_22-8           42554761                28.55 ns/op            0 B/op          0 allocs/op
 PASS
 ok      github.com/five-vee/disruptor/benchmarks        4.144s
 ```
@@ -52,8 +52,10 @@ ok      github.com/five-vee/disruptor/benchmarks        4.144s
 ## Features
 
 - [x] Support single producer and single consumer.
-- [ ] Support multiple producers.
+- [ ] ~~Support multiple producers.~~ [^1]
 - [ ] Support multiple consumers.
 - [ ] Support different waiting strategies.
 - [ ] Support modifying the buffer directly.
-- [ ] Support the pipeline pattern, where a consumer can produce to a downstream consumer.
+- [ ] Support consumer dependencies.
+
+[^1]: At the moment, multiple producers is explicitly not supported due to follow the [single writer principle](https://mechanical-sympathy.blogspot.com/2011/09/single-writer-principle.html). I.e. a single writer can write messages faster than multiple writers.
