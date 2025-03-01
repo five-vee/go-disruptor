@@ -23,8 +23,6 @@ var (
 type Disruptor[T any] struct {
 	capacity         int64
 	mask             int64
-	yieldProducer    func()
-	yieldConsumer    func()
 	consumer         func(T)
 	buffer           []T
 	_                [64]byte
@@ -39,12 +37,10 @@ func NewDisruptor[T any](capacity int64, consumer func(T)) (*Disruptor[T], error
 		return nil, ErrCapacity
 	}
 	d := &Disruptor[T]{
-		capacity:      capacity,
-		mask:          capacity - 1,
-		yieldProducer: runtime.Gosched,
-		yieldConsumer: runtime.Gosched,
-		consumer:      consumer,
-		buffer:        make([]T, capacity),
+		capacity: capacity,
+		mask:     capacity - 1,
+		consumer: consumer,
+		buffer:   make([]T, capacity),
 	}
 	d.state.Store(openBuffer)
 	return d, nil
@@ -62,7 +58,7 @@ func (d *Disruptor[T]) Produce(item T) {
 		if nextProducerSequence < currentConsumerSequence+d.capacity {
 			break
 		}
-		d.yieldProducer()
+		runtime.Gosched()
 	}
 	d.buffer[nextProducerSequence&d.mask] = item
 	d.producerSequence.Store(nextProducerSequence)
@@ -79,7 +75,7 @@ func (d *Disruptor[T]) LoopConsume() {
 			if d.state.Load() == closedBuffer {
 				return
 			}
-			d.yieldConsumer()
+			runtime.Gosched()
 			continue
 		}
 		for seq := currentConsumerSequence + 1; seq <= currentProducerSequence; seq++ {
