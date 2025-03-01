@@ -15,8 +15,7 @@ const (
 
 var (
 	// ErrCapacity is the error corresponding to wrong capacity.
-	ErrCapacity           = fmt.Errorf("capacity must be a power of two")
-	ErrNoSingularConsumer = fmt.Errorf("must pass in exactly one consumer")
+	ErrCapacity = fmt.Errorf("capacity must be a power of two")
 )
 
 // Disruptor supports only a single producer and single consumer.
