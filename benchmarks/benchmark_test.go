@@ -65,13 +65,13 @@ func BenchmarkDisruptor_22(b *testing.B) {
 		defer wg.Done()
 		defer d.Close()
 		for b.Loop() {
-			d.Produce(object{})
+			d.Write(object{})
 		}
 	}()
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
-		d.LoopConsume()
+		d.LoopRead()
 	}()
 	wg.Wait()
 }

@@ -18,70 +18,74 @@ var (
 	ErrCapacity = fmt.Errorf("capacity must be a power of two")
 )
 
-// Disruptor supports only a single producer and single consumer.
+// Disruptor supports only a single writer and single reader.
 type Disruptor[T any] struct {
-	capacity         int64
-	mask             int64
-	consumer         func(T)
-	buffer           []T
-	_                [64]byte
-	producerSequence paddedAtomicInt64
-	consumerSequence paddedAtomicInt64
-	state            paddedAtomicInt64
+	capacity int64
+	mask     int64
+	read     func(T)
+	buffer   []T
+
+	_ [64]byte
+
+	writeCursor cursor
+	readCursor  cursor
+	state       paddedAtomicInt64
 }
 
 // NewDisruptor returns a new disruptor.
-func NewDisruptor[T any](capacity int64, consumer func(T)) (*Disruptor[T], error) {
+func NewDisruptor[T any](capacity int64, read func(T)) (*Disruptor[T], error) {
 	if capacity <= 0 || capacity&(capacity-1) != 0 {
 		return nil, ErrCapacity
 	}
 	d := &Disruptor[T]{
-		capacity: capacity,
-		mask:     capacity - 1,
-		consumer: consumer,
-		buffer:   make([]T, capacity),
+		capacity:    capacity,
+		mask:        capacity - 1,
+		read:        read,
+		buffer:      make([]T, capacity),
+		writeCursor: &paddedAtomicInt64{},
+		readCursor:  &paddedAtomicInt64{},
 	}
 	d.state.Store(openBuffer)
 	return d, nil
 }
 
-// Produce adds an item to the disruptor.
-func (d *Disruptor[T]) Produce(item T) {
+// Write adds an item to the disruptor.
+func (d *Disruptor[T]) Write(item T) {
 	if d.state.Load() == closedBuffer {
-		panic("Produce() called after Close() was called.")
+		panic("Write() called after Close() was called.")
 	}
-	currentProducerSequence := d.producerSequence.Load()
-	nextProducerSequence := currentProducerSequence + 1
+	currentWriter := d.writeCursor.Load()
+	nextWriter := currentWriter + 1
 	for {
-		currentConsumerSequence := d.consumerSequence.Load()
-		if nextProducerSequence < currentConsumerSequence+d.capacity {
+		currentReader := d.readCursor.Load()
+		if nextWriter < currentReader+d.capacity {
 			break
 		}
 		runtime.Gosched()
 	}
-	d.buffer[nextProducerSequence&d.mask] = item
-	d.producerSequence.Store(nextProducerSequence)
+	d.buffer[nextWriter&d.mask] = item
+	d.writeCursor.Store(nextWriter)
 }
 
-// LoopConsume continuously consumes messages
-// and passes them to a provided consumer.
+// LoopRead continuously reads messages
+// and passes them to a provided reader.
 // Blocks until Close() is called.
-func (d *Disruptor[T]) LoopConsume() {
-	currentConsumerSequence := d.consumerSequence.Load()
+func (d *Disruptor[T]) LoopRead() {
+	currentReader := d.readCursor.Load()
 	for {
-		currentProducerSequence := d.producerSequence.Load()
-		if currentConsumerSequence == currentProducerSequence {
+		currentWriter := d.writeCursor.Load()
+		if currentReader == currentWriter {
 			if d.state.Load() == closedBuffer {
 				return
 			}
 			runtime.Gosched()
 			continue
 		}
-		for seq := currentConsumerSequence + 1; seq <= currentProducerSequence; seq++ {
-			d.consumer(d.buffer[seq&d.mask])
+		for seq := currentReader + 1; seq <= currentWriter; seq++ {
+			d.read(d.buffer[seq&d.mask])
 		}
-		d.consumerSequence.Store(currentProducerSequence)
-		currentConsumerSequence = currentProducerSequence
+		d.readCursor.Store(currentWriter)
+		currentReader = currentWriter
 	}
 }
 
@@ -93,4 +97,9 @@ func (d *Disruptor[T]) Close() {
 type paddedAtomicInt64 struct {
 	atomic.Int64
 	_ [56]byte
+}
+
+type cursor interface {
+	Load() int64
+	Store(int64)
 }

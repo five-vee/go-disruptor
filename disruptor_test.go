@@ -15,7 +15,7 @@ func TestNewDisruptor(t *testing.T) {
 		wantErr          error
 		isValidDisruptor bool
 	}
-	consume := func(int) {}
+	read := func(int) {}
 
 	testCases := []testCase[int]{
 		{
@@ -46,7 +46,7 @@ func TestNewDisruptor(t *testing.T) {
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			d, err := disruptor.NewDisruptor(tc.capacity, consume)
+			d, err := disruptor.NewDisruptor(tc.capacity, read)
 
 			if err != tc.wantErr {
 				t.Errorf("NewDisruptor(%q) error = %v, wantErr %v", tc.name, err, tc.wantErr)
@@ -74,10 +74,10 @@ func TestDisruptor_SmokeTest(t *testing.T) {
 		return m
 	}()
 	gots := map[int]int{}
-	consumer := func(item int) {
+	read := func(item int) {
 		gots[item]++
 	}
-	d, _ := disruptor.NewDisruptor(capacity, consumer)
+	d, _ := disruptor.NewDisruptor(capacity, read)
 
 	// Run test.
 	var wg sync.WaitGroup
@@ -85,19 +85,19 @@ func TestDisruptor_SmokeTest(t *testing.T) {
 	go func() {
 		defer wg.Done()
 		for i := 0; i < n; i++ {
-			d.Produce(i)
+			d.Write(i)
 		}
 		d.Close()
 	}()
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
-		d.LoopConsume()
+		d.LoopRead()
 	}()
 	wg.Wait()
 
 	// Verify outputs.
 	if diff := cmp.Diff(wants, gots); diff != "" {
-		t.Errorf("Consume() received different messages than Produce() (-want +got):\n%s", diff)
+		t.Errorf("Read() received different messages from Write() (-want +got):\n%s", diff)
 	}
 }
