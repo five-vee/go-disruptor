@@ -25,37 +25,32 @@ There _is_ already an existing port ([`smarty-prototypes/go-disruptor`](https://
 * **Better encapsulation**: The user does not need to create and interact with the ring buffer directly.
 * **Generics support**: This library takes advantage of Go generics to simplify using the disruptor.
 
-However, the disadvantages are as follows:
-
-* `smarty-prototypes` is slightly faster (see [benchmarks](#benchmarks) below). I suspect this is due to the abstraction cost not exposing the internal ring buffer to the user.
-* Not as general purpose. See [features](#features).
-
 ## Benchmarks
 
-Benchmarks of 16-byte message throughput for `smarty-prototypes/go-disruptor`, `five-vee/disruptor`, and buffered Go channels. The producer and consumer run in their own goroutine. The buffer size is `1 << 22`.
+Benchmarks of 128-byte message throughput for `smarty-prototypes/go-disruptor`, `five-vee/disruptor`, and buffered Go channels. The producer and consumer run in their own goroutine. The buffer size is `1 << 22`.
 
 _(Ran on my Macbook Air M3.)_
 
-```
+```zsh
 $ go test -benchmem -run=^$ -bench . github.com/five-vee/disruptor/benchmarks
 goos: darwin
 goarch: arm64
 pkg: github.com/five-vee/disruptor/benchmarks
 cpu: Apple M3
-BenchmarkSmartystreets_22-8     423986880                2.824 ns/op           0 B/op          0 allocs/op
-BenchmarkDisruptor_22-8         303964519                3.976 ns/op           0 B/op          0 allocs/op
-BenchmarkChannel_22-8           42554761                28.55 ns/op            0 B/op          0 allocs/op
+BenchmarkDisruptor_22-8         123182359                9.598 ns/op           0 B/op          0 allocs/op
+BenchmarkSmartystreets_22-8     131537997                9.126 ns/op           0 B/op          0 allocs/op
+BenchmarkChannel_22-8           35068407                36.82 ns/op            0 B/op          0 allocs/op
 PASS
-ok      github.com/five-vee/disruptor/benchmarks        4.144s
+ok      github.com/five-vee/disruptor/benchmarks        4.867s
 ```
 
 ## Features
 
 - [x] Support single producer and single consumer.
 - [ ] ~~Support multiple producers.~~ [^1]
-- [ ] Support multiple consumers.
+- [x] Support multiple consumers.
 - [ ] Support different waiting strategies.
-- [ ] Support modifying the buffer directly.
-- [ ] Support consumer dependencies.
+- [x] Support modifying the buffer directly.
+- [x] Support consumer dependencies.
 
 [^1]: At the moment, multiple producers is explicitly not supported due to follow the [single writer principle](https://mechanical-sympathy.blogspot.com/2011/09/single-writer-principle.html). I.e. a single writer can write messages faster than multiple writers.
