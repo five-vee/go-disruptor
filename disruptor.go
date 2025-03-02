@@ -10,10 +10,10 @@ import (
 	"runtime"
 	"sync"
 
-	"github.com/five-vee/disruptor/internal/barrier"
-	"github.com/five-vee/disruptor/internal/closer"
-	"github.com/five-vee/disruptor/internal/pad"
-	"github.com/five-vee/disruptor/internal/reader"
+	"github.com/five-vee/go-disruptor/internal/barrier"
+	"github.com/five-vee/go-disruptor/internal/closer"
+	"github.com/five-vee/go-disruptor/internal/pad"
+	"github.com/five-vee/go-disruptor/internal/reader"
 )
 
 var (

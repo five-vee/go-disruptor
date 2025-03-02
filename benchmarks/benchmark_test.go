@@ -3,7 +3,7 @@ package benchmark_test
 import (
 	"testing"
 
-	fivevee "github.com/five-vee/disruptor"
+	fivevee "github.com/five-vee/go-disruptor"
 	smartystreets "github.com/smartystreets-prototypes/go-disruptor"
 )
 

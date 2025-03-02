@@ -1,4 +1,4 @@
-module github.com/five-vee/disruptor
+module github.com/five-vee/go-disruptor
 
 go 1.24.0
 

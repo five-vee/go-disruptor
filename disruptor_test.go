@@ -4,7 +4,7 @@ import (
 	"errors"
 	"testing"
 
-	"github.com/five-vee/disruptor"
+	"github.com/five-vee/go-disruptor"
 	"github.com/google/go-cmp/cmp"
 )
 

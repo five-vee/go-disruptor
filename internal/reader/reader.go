@@ -3,9 +3,9 @@ package reader
 import (
 	"time"
 
-	"github.com/five-vee/disruptor/internal/barrier"
-	"github.com/five-vee/disruptor/internal/closer"
-	"github.com/five-vee/disruptor/internal/pad"
+	"github.com/five-vee/go-disruptor/internal/barrier"
+	"github.com/five-vee/go-disruptor/internal/closer"
+	"github.com/five-vee/go-disruptor/internal/pad"
 )
 
 // Reader represents a single Reader of the ring buffer.
