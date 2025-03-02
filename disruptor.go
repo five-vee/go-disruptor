@@ -27,7 +27,7 @@ var (
 // Builder builds a disruptor.
 type Builder[T any] struct {
 	capacity     int64
-	readerGroups [][]func(T)
+	readerGroups [][]func(*T)
 }
 
 // NewBuilder returns a builder of a disruptor.
@@ -40,7 +40,7 @@ func NewBuilder[T any](capacity int64) *Builder[T] {
 // the reader group is the descendant of the Writer.
 // Otherwise, the reader group is a descendant of the
 // reader group of the previously passed in WithReaderGroup().
-func (b *Builder[T]) WithReaderGroup(group ...func(T)) *Builder[T] {
+func (b *Builder[T]) WithReaderGroup(group ...func(*T)) *Builder[T] {
 	b.readerGroups = append(b.readerGroups, group)
 	return b
 }
@@ -112,7 +112,7 @@ type Disruptor[T any] struct {
 }
 
 // Write adds an item to the disruptor.
-func (d *Disruptor[T]) Write(item T) {
+func (d *Disruptor[T]) Write(f func(item *T)) {
 	if d.closer.IsClosed() {
 		panic("Write() called after Close() was called.")
 	}
@@ -120,7 +120,7 @@ func (d *Disruptor[T]) Write(item T) {
 	for ; nextWriter >= d.slowestReader.Val+d.capacity; d.slowestReader.Val = d.readBarrier.Load() {
 		runtime.Gosched()
 	}
-	d.buffer[nextWriter&d.mask] = item
+	f(&d.buffer[nextWriter&d.mask])
 	d.writeCursor.Store(nextWriter)
 	d.currentWriter.Val = nextWriter
 }

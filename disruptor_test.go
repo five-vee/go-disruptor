@@ -12,26 +12,26 @@ func TestBuilder(t *testing.T) {
 	type test struct {
 		name         string
 		capacity     int64
-		readerGroups [][]func(int)
+		readerGroups [][]func(*int)
 		wantErr      error
 	}
 	tests := []test{
 		{
 			name:         "zero capacity",
 			capacity:     0,
-			readerGroups: [][]func(int){{func(int) {}}},
+			readerGroups: [][]func(*int){{func(*int) {}}},
 			wantErr:      disruptor.ErrCapacity,
 		},
 		{
 			name:         "negative capacity",
 			capacity:     -2,
-			readerGroups: [][]func(int){{func(int) {}}},
+			readerGroups: [][]func(*int){{func(*int) {}}},
 			wantErr:      disruptor.ErrCapacity,
 		},
 		{
 			name:         "non power of two capacity",
 			capacity:     3,
-			readerGroups: [][]func(int){{func(int) {}}},
+			readerGroups: [][]func(*int){{func(*int) {}}},
 			wantErr:      disruptor.ErrCapacity,
 		},
 		{
@@ -43,8 +43,8 @@ func TestBuilder(t *testing.T) {
 		{
 			name:     "empty reader group",
 			capacity: 4,
-			readerGroups: [][]func(int){
-				{func(int) {}},
+			readerGroups: [][]func(*int){
+				{func(*int) {}},
 				{},
 			},
 			wantErr: disruptor.ErrEmptyReaderGroup,
@@ -52,9 +52,9 @@ func TestBuilder(t *testing.T) {
 		{
 			name:     "valid",
 			capacity: 4,
-			readerGroups: [][]func(int){
-				{func(int) {}, func(int) {}},
-				{func(int) {}},
+			readerGroups: [][]func(*int){
+				{func(*int) {}, func(*int) {}},
+				{func(*int) {}},
 			},
 		},
 	}
@@ -93,8 +93,8 @@ func TestDisruptor_SingleReader_SmokeTest(t *testing.T) {
 		return m
 	}()
 	gots := map[int]int{}
-	read := func(item int) {
-		gots[item]++
+	read := func(item *int) {
+		gots[*item]++
 	}
 	d, _ := disruptor.NewBuilder[int](capacity).
 		WithReaderGroup(read).
@@ -103,7 +103,7 @@ func TestDisruptor_SingleReader_SmokeTest(t *testing.T) {
 	// Run test.
 	go func() {
 		for i := 0; i < n; i++ {
-			d.Write(i)
+			d.Write(func(item *int) { *item = i })
 		}
 		d.Close()
 	}()
@@ -129,16 +129,16 @@ func TestDisruptor_MultiReader_SmokeTest(t *testing.T) {
 		return m
 	}()
 	gots1 := map[int]int{}
-	read1 := func(item int) {
-		gots1[item]++
+	read1 := func(item *int) {
+		gots1[*item]++
 	}
 	gots2 := map[int]int{}
-	read2 := func(item int) {
-		gots2[item]++
+	read2 := func(item *int) {
+		gots2[*item]++
 	}
 	gots3 := map[int]int{}
-	read3 := func(item int) {
-		gots3[item]++
+	read3 := func(item *int) {
+		gots3[*item]++
 	}
 	d, _ := disruptor.NewBuilder[int](capacity).
 		WithReaderGroup(read1, read2).
@@ -148,7 +148,7 @@ func TestDisruptor_MultiReader_SmokeTest(t *testing.T) {
 	// Run test.
 	go func() {
 		for i := 0; i < n; i++ {
-			d.Write(i)
+			d.Write(func(item *int) { *item = i })
 		}
 		d.Close()
 	}()

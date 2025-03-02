@@ -12,7 +12,7 @@ import (
 type Reader[T any] struct {
 	buffer          []T
 	mask            int64
-	f               func(T)
+	f               func(*T)
 	upstreamBarrier barrier.Barrier
 	closedBarrier   barrier.ClosedBarrier
 
@@ -22,7 +22,7 @@ type Reader[T any] struct {
 }
 
 // NewReader returns a new Reader and its corresponding cursor.
-func NewReader[T any](upstreamBarrier barrier.Barrier, f func(T), closedBarrier barrier.ClosedBarrier, buffer []T) (r *Reader[T], cursor *pad.AtomicInt64, state *closer.Closer) {
+func NewReader[T any](upstreamBarrier barrier.Barrier, f func(*T), closedBarrier barrier.ClosedBarrier, buffer []T) (r *Reader[T], cursor *pad.AtomicInt64, state *closer.Closer) {
 	r = &Reader[T]{
 		buffer:          buffer,
 		mask:            int64(len(buffer) - 1),
@@ -48,7 +48,7 @@ func (r *Reader[T]) LoopRead() {
 			continue
 		}
 		for seq := current + 1; seq <= upstream; seq++ {
-			r.f(r.buffer[seq&r.mask])
+			r.f(&r.buffer[seq&r.mask])
 		}
 		r.cursor.Store(upstream)
 		current = upstream

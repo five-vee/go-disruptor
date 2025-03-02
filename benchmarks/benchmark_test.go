@@ -7,12 +7,18 @@ import (
 	smartystreets "github.com/smartystreets-prototypes/go-disruptor"
 )
 
-type object struct{ _ [16]byte }
+type object struct{ x [128]byte }
 
-// a consumer function that just accepts an object
+// a produce function that just accepts an object
 // without needing to deal with ring buffer internals.
-func consume[T any](item T) {
-	_ = item
+func produce(o *object) {
+	o.x[0] = '0'
+}
+
+// a consume function that just accepts an object
+// without needing to deal with ring buffer internals.
+func consume(o *object) {
+	_ = o.x[0]
 }
 
 func BenchmarkDisruptor_22(b *testing.B) {
@@ -24,7 +30,7 @@ func BenchmarkDisruptor_22(b *testing.B) {
 	go func() {
 		defer d.Close()
 		for b.Loop() {
-			d.Write(object{})
+			d.Write(produce)
 		}
 	}()
 	d.LoopRead()
@@ -38,7 +44,7 @@ type smartystreetsConsumer struct {
 
 func (c smartystreetsConsumer) Consume(lower, upper int64) {
 	for seq := lower; seq <= upper; seq++ {
-		consume(c.ringBuffer[seq&c.mask])
+		consume(&c.ringBuffer[seq&c.mask])
 	}
 }
 
@@ -50,15 +56,11 @@ func BenchmarkSmartystreets_22(b *testing.B) {
 		smartystreets.WithCapacity(bufSize),
 		smartystreets.WithConsumerGroup(smartystreetsConsumer{mask, ringBuffer}),
 	)
-	produce := func() object {
-		return object{}
-	}
 	b.ResetTimer()
 	go func() {
 		for range b.N {
 			sequence := d.Reserve(1)
-			o := produce()
-			ringBuffer[sequence&mask] = o
+			produce(&ringBuffer[sequence&mask])
 			d.Commit(sequence, sequence)
 		}
 		_ = d.Close()
@@ -75,6 +77,6 @@ func BenchmarkChannel_22(b *testing.B) {
 		}
 	}()
 	for range b.N {
-		consume(<-c)
+		_ = <-c
 	}
 }
