@@ -76,8 +76,8 @@ func (batchReaderFunc[T]) implementReaderFunc() {}
 // f is essentially a function that accepts a sub-slice of the
 // internal ring buffer and is called twice:
 //
-// 1. Once with a sub-slice to the end of the ring buffer,
-// 2. Once with a sub-slice from the beginning of the ring buffer.
+// 1. First sub-slice is to the end of the ring buffer,
+// 2. Secondsub-slice is from the beginning of the ring buffer.
 //
 // It is possible the 2nd sub-slice is empty if n doesn't wrap around the
 // ring buffer, i.e. length == 0.
@@ -193,11 +193,11 @@ func (d *Disruptor[T]) commit(nextWriter int64) {
 }
 
 // WriteBatch adds n items to the disruptor.
-// f is essentially a function that accepts a sub-slice of the
-// internal ring buffer and is called twice:
+// f is essentially a function that accepts a two sub-slices of the
+// internal ring buffer:
 //
-// 1. Once with a sub-slice to the end of the ring buffer,
-// 2. Once with a sub-slice from the beginning of the ring buffer.
+// 1. First sub-slice is to the end of the ring buffer,
+// 2. Secondsub-slice is from the beginning of the ring buffer.
 //
 // It is possible the 2nd sub-slice is empty if n doesn't wrap around the
 // ring buffer, i.e. length == 0.

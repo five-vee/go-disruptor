@@ -22,7 +22,8 @@ If for some reason you have Go code that needs to process messages at sub-micros
 
 There _is_ already an existing port ([`smarty-prototypes/go-disruptor`](https://github.com/smarty-prototypes/go-disruptor)), but the key advantage of this library over that other port is simplicity:
 
-* **Better encapsulation**: The user does not need to create and interact with the ring buffer directly.
+* **Better encapsulation**: The user does not need to create and interact with the ring buffer directly (unless using `WriteBatch` and/or `BatchReadFunc`).
+* **Batching support**: `WriteBatch` and `BatchReadFunc` allow the user to efficiently batch items in/out of the ring buffer, e.g. via SIMD code.
 * **Generics support**: This library takes advantage of Go generics to simplify using the disruptor.
 
 ## Benchmarks
