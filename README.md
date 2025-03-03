@@ -52,6 +52,7 @@ ok      github.com/five-vee/disruptor/benchmarks        4.867s
 - [ ] Support different waiting strategies.
 - [x] Support modifying the buffer directly.
 - [x] Support consumer dependencies.
-- [ ] go.pkg.dev documentation.
+- [x] go.pkg.dev documentation.
+- [x] Support producer and consumer batching.
 
 [^1]: At the moment, multiple producers is explicitly not supported due to follow the [single writer principle](https://mechanical-sympathy.blogspot.com/2011/09/single-writer-principle.html). I.e. a single writer can write messages faster than multiple writers.

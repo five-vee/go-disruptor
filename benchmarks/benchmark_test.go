@@ -24,7 +24,7 @@ func consume(o *object) {
 func BenchmarkDisruptor_22(b *testing.B) {
 	const bufSize = 1 << 22
 	d, _ := fivevee.NewBuilder[object](bufSize).
-		WithReaderGroup(consume).
+		WithReaderGroup(fivevee.SingleReaderFunc(consume)).
 		Build()
 	b.ResetTimer()
 	go func() {
@@ -72,11 +72,12 @@ func BenchmarkChannel_22(b *testing.B) {
 	c := make(chan object, 1<<22)
 	b.ResetTimer()
 	go func() {
-		for range b.N {
+		defer close(c)
+		for b.Loop() {
 			c <- object{}
 		}
 	}()
-	for range b.N {
-		_ = <-c
+	for o := range c {
+		_ = o
 	}
 }
