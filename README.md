@@ -2,7 +2,7 @@
 
 The [Disruptor](https://lmax-exchange.github.io/disruptor/) was originally a library written in Java that provided a concurrent ring buffer data structure of the same name, developed at [LMAX Exchange](https://www.lmax.com/).
 
-This repo is _yet-another_ port of the disruptor in Go. It is performant, simple, and free of heap allocation when running.
+This repo is _yet-another_ port of the disruptor in Go. It is performant and free of heap allocation when running.
 
 If for some reason you have Go code that needs to process messages at sub-microsecond latency, where shaving every nanosecond counts, then consider the disruptor pattern. Example situations:
 
@@ -20,11 +20,13 @@ If for some reason you have Go code that needs to process messages at sub-micros
 
 ## Comparisons to other Go ports
 
-There _is_ already an existing port ([`smarty-prototypes/go-disruptor`](https://github.com/smarty-prototypes/go-disruptor)), but the key advantage of this library over that other port is simplicity:
+There _is_ already an existing port ([`smarty-prototypes/go-disruptor`](https://github.com/smarty-prototypes/go-disruptor)), but the key advantages of this library over that are:
 
 * **Better encapsulation**: The user does not need to create and interact with the ring buffer directly (unless using `WriteBatch` and/or `BatchReadFunc`).
 * **Batching support**: `WriteBatch` and `BatchReadFunc` allow the user to efficiently batch items in/out of the ring buffer, e.g. via SIMD code.
 * **Generics support**: This library takes advantage of Go generics to simplify using the disruptor.
+
+Nonetheless, these advantages come with slightly higher latency, on the order of `O(1 ns)`. Take this into consideration when deciding which LMAX port to use.
 
 ## Benchmarks
 
@@ -33,16 +35,16 @@ Benchmarks of 128-byte message throughput for `smarty-prototypes/go-disruptor`, 
 _(Ran on my Macbook Air M3.)_
 
 ```zsh
-$ go test -benchmem -run=^$ -bench . github.com/five-vee/disruptor/benchmarks
+$ go test -benchmem -run=^$ -bench . github.com/five-vee/go-disruptor/benchmarks
 goos: darwin
 goarch: arm64
-pkg: github.com/five-vee/disruptor/benchmarks
+pkg: github.com/five-vee/go-disruptor/benchmarks
 cpu: Apple M3
-BenchmarkDisruptor_22-8         123182359                9.598 ns/op           0 B/op          0 allocs/op
-BenchmarkSmartystreets_22-8     131537997                9.126 ns/op           0 B/op          0 allocs/op
-BenchmarkChannel_22-8           35068407                36.82 ns/op            0 B/op          0 allocs/op
+BenchmarkDisruptor_22-8         106468981               10.95 ns/op            0 B/op          0 allocs/op
+BenchmarkSmartystreets_22-8     131017900                9.187 ns/op           0 B/op          0 allocs/op
+BenchmarkChannel_22-8           43040191                31.49 ns/op            0 B/op          0 allocs/op
 PASS
-ok      github.com/five-vee/disruptor/benchmarks        4.867s
+ok      github.com/five-vee/go-disruptor/benchmarks     5.148s
 ```
 
 ## Features
