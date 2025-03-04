@@ -158,23 +158,25 @@ type readLooper interface {
 
 // Disruptor supports a single writer and multiple readers.
 type Disruptor[T any] struct {
-	capacity      int64
-	mask          int64
-	buffer        []T
-	readers       []readLooper
-	readBarrier   barrier.Barrier
+	capacity    int64
+	mask        int64
+	buffer      []T
+	readers     []readLooper
+	closer      closer.Closer
+	readBarrier barrier.Barrier
+
+	_ [64]byte // padding
+
 	slowestReader pad.Int64 // cached version of readBarrier
-	closer        closer.Closer
 	writeCursor   pad.AtomicInt64
 	currentWriter pad.Int64 // cached version of writeCursor
 }
 
 // Write adds an item to the disruptor.
 // f writes in-place into the ring buffer.
+//
+// It is UNDEFINED BEHAVIOR to call Write after Close.
 func (d *Disruptor[T]) Write(f func(item *T)) {
-	if d.closer.IsClosed() {
-		panic("Write() called after Close() was called.")
-	}
 	nextWriter := d.currentWriter.Val + 1
 	d.reserve(nextWriter)
 	f(&d.buffer[nextWriter&d.mask])
@@ -182,8 +184,12 @@ func (d *Disruptor[T]) Write(f func(item *T)) {
 }
 
 func (d *Disruptor[T]) reserve(nextWriter int64) {
-	for ; nextWriter >= d.slowestReader.Val+d.capacity; d.slowestReader.Val = d.readBarrier.Load() {
-		runtime.Gosched()
+	const spinMask = (1 << 14) - 1
+	for spin := 0; nextWriter >= d.slowestReader.Val+d.capacity; d.slowestReader.Val = d.readBarrier.Load() {
+		if spin&spinMask == 0 {
+			runtime.Gosched()
+		}
+		spin++
 	}
 }
 
@@ -206,12 +212,11 @@ func (d *Disruptor[T]) commit(nextWriter int64) {
 // overhead of sub-slicing is much smaller than the time saved by batching,
 // e.g. when working with SIMD code to write large numbers of items into
 // the disruptor.
+//
+// It is UNDEFINED BEHAVIOR to call WriteBatch after Close.
 func (d *Disruptor[T]) WriteBatch(n int64, f func(ptrs [2]*T, lens [2]int)) {
 	if n > d.capacity {
 		panic("WriteBatch() attempted to write more items than capacity allows")
-	}
-	if d.closer.IsClosed() {
-		panic("WriteBatch() called after Close() was called.")
 	}
 	nextWriter := d.currentWriter.Val + n
 	d.reserve(nextWriter)

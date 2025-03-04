@@ -29,7 +29,7 @@ func BenchmarkDisruptor_22(b *testing.B) {
 	b.ResetTimer()
 	go func() {
 		defer d.Close()
-		for b.Loop() {
+		for range b.N {
 			d.Write(produce)
 		}
 	}()
@@ -73,7 +73,7 @@ func BenchmarkChannel_22(b *testing.B) {
 	b.ResetTimer()
 	go func() {
 		defer close(c)
-		for b.Loop() {
+		for range b.N {
 			c <- object{}
 		}
 	}()

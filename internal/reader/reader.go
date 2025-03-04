@@ -16,7 +16,8 @@ type SingleReader[T any] struct {
 	upstreamBarrier barrier.Barrier
 	closedBarrier   barrier.ClosedBarrier
 
-	_      [64]byte
+	_ [64]byte // padding
+
 	cursor pad.AtomicInt64
 	closer closer.Closer
 }
@@ -38,20 +39,26 @@ func NewSingleReader[T any](upstreamBarrier barrier.Barrier, f func(*T), closedB
 func (r *SingleReader[T]) LoopRead() {
 	defer r.closer.Close()
 	current := r.cursor.Load()
+
 	for {
-		upstream := r.upstreamBarrier.Load()
-		if current == upstream {
-			if r.closedBarrier.IsClosed() {
-				return
+		if upstream := r.upstreamBarrier.Load(); current < upstream {
+			for seq := current + 1; seq <= upstream; seq++ {
+				r.f(&r.buffer[seq&r.mask])
 			}
+			r.cursor.Store(upstream)
+			current = upstream
+		} else if upstream := r.upstreamBarrier.Load(); current < upstream {
+			// try again
+			for seq := current + 1; seq <= upstream; seq++ {
+				r.f(&r.buffer[seq&r.mask])
+			}
+			r.cursor.Store(upstream)
+			current = upstream
+		} else if r.closedBarrier.IsClosed() {
+			return
+		} else {
 			time.Sleep(50 * time.Microsecond)
-			continue
 		}
-		for seq := current + 1; seq <= upstream; seq++ {
-			r.f(&r.buffer[seq&r.mask])
-		}
-		r.cursor.Store(upstream)
-		current = upstream
 	}
 }
 
@@ -85,20 +92,26 @@ func NewBatchReader[T any](upstreamBarrier barrier.Barrier, f func(ptrs [2]*T, l
 func (r *BatchReader[T]) LoopRead() {
 	defer r.closer.Close()
 	current := r.cursor.Load()
+
 	for {
-		upstream := r.upstreamBarrier.Load()
-		if current == upstream {
-			if r.closedBarrier.IsClosed() {
-				return
-			}
+		if upstream := r.upstreamBarrier.Load(); current < upstream {
+			i, j := (current+1)&r.mask, upstream&r.mask
+			len1, len2 := unwrap(int64(len(r.buffer)), i, j)
+			r.f([2]*T{&r.buffer[i], &r.buffer[0]}, [2]int{len1, len2})
+			r.cursor.Store(upstream)
+			current = upstream
+		} else if upstream := r.upstreamBarrier.Load(); current < upstream {
+			// try again
+			i, j := (current+1)&r.mask, upstream&r.mask
+			len1, len2 := unwrap(int64(len(r.buffer)), i, j)
+			r.f([2]*T{&r.buffer[i], &r.buffer[0]}, [2]int{len1, len2})
+			r.cursor.Store(upstream)
+			current = upstream
+		} else if r.closedBarrier.IsClosed() {
+			return
+		} else {
 			time.Sleep(50 * time.Microsecond)
-			continue
 		}
-		i, j := (current+1)&r.mask, upstream&r.mask
-		len1, len2 := unwrap(int64(len(r.buffer)), i, j)
-		r.f([2]*T{&r.buffer[i], &r.buffer[0]}, [2]int{len1, len2})
-		r.cursor.Store(upstream)
-		current = upstream
 	}
 }
 
