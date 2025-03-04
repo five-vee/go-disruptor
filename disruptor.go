@@ -1,7 +1,6 @@
 package disruptor
 
 import (
-	"runtime"
 	"sync"
 
 	"github.com/five-vee/go-disruptor/internal/barrier"
@@ -16,6 +15,7 @@ type Disruptor[T any] struct {
 	buffer      []T
 	readers     []readLooper
 	readBarrier barrier.Barrier
+	writerYield func(spins int)
 	closed      bool // cached version of closer
 
 	_ [64]byte // padding
@@ -39,12 +39,9 @@ func (d *Disruptor[T]) Write(f func(item *T)) {
 }
 
 func (d *Disruptor[T]) reserve(nextWriter int64) {
-	const spinMask = (1 << 14) - 1
-	for spin := 0; nextWriter >= d.slowestReader.Val+d.capacity; d.slowestReader.Val = d.readBarrier.Load() {
-		if spin&spinMask == 0 {
-			runtime.Gosched()
-		}
-		spin++
+	for spins := 0; nextWriter >= d.slowestReader.Val+d.capacity; d.slowestReader.Val = d.readBarrier.Load() {
+		d.writerYield(spins)
+		spins++
 	}
 }
 

@@ -1,8 +1,6 @@
 package reader
 
 import (
-	"time"
-
 	"github.com/five-vee/go-disruptor/internal/barrier"
 	"github.com/five-vee/go-disruptor/internal/closer"
 	"github.com/five-vee/go-disruptor/internal/pad"
@@ -13,6 +11,7 @@ type SingleReader[T any] struct {
 	buffer          []T
 	mask            int64
 	f               func(*T)
+	readerYield     func()
 	upstreamBarrier barrier.Barrier
 	closedBarrier   barrier.ClosedBarrier
 
@@ -23,11 +22,12 @@ type SingleReader[T any] struct {
 }
 
 // NewSingleReader returns a new SingleReader, its cursor, and its closer.
-func NewSingleReader[T any](upstreamBarrier barrier.Barrier, f func(*T), closedBarrier barrier.ClosedBarrier, buffer []T) (r *SingleReader[T], cursor *pad.AtomicInt64, closer *closer.Closer) {
+func NewSingleReader[T any](upstreamBarrier barrier.Barrier, f func(*T), closedBarrier barrier.ClosedBarrier, buffer []T, readerYield func()) (r *SingleReader[T], cursor *pad.AtomicInt64, closer *closer.Closer) {
 	r = &SingleReader[T]{
 		buffer:          buffer,
 		mask:            int64(len(buffer) - 1),
 		f:               f,
+		readerYield:     readerYield,
 		upstreamBarrier: upstreamBarrier,
 		closedBarrier:   closedBarrier,
 	}
@@ -57,7 +57,7 @@ func (r *SingleReader[T]) LoopRead() {
 		} else if r.closedBarrier.IsClosed() {
 			return
 		} else {
-			time.Sleep(50 * time.Microsecond)
+			r.readerYield()
 		}
 	}
 }
@@ -67,6 +67,7 @@ type BatchReader[T any] struct {
 	buffer          []T
 	mask            int64
 	f               func(ptrs [2]*T, lens [2]int)
+	readerYield     func()
 	upstreamBarrier barrier.Barrier
 	closedBarrier   barrier.ClosedBarrier
 
@@ -76,11 +77,12 @@ type BatchReader[T any] struct {
 }
 
 // NewBatchReader returns a new batch reader, its cursor, and its closer.
-func NewBatchReader[T any](upstreamBarrier barrier.Barrier, f func(ptrs [2]*T, lens [2]int), closedBarrier barrier.ClosedBarrier, buffer []T) (r *BatchReader[T], cursor *pad.AtomicInt64, closer *closer.Closer) {
+func NewBatchReader[T any](upstreamBarrier barrier.Barrier, f func(ptrs [2]*T, lens [2]int), closedBarrier barrier.ClosedBarrier, buffer []T, readerYield func()) (r *BatchReader[T], cursor *pad.AtomicInt64, closer *closer.Closer) {
 	r = &BatchReader[T]{
 		buffer:          buffer,
 		mask:            int64(len(buffer) - 1),
 		f:               f,
+		readerYield:     readerYield,
 		upstreamBarrier: upstreamBarrier,
 		closedBarrier:   closedBarrier,
 	}
@@ -110,7 +112,7 @@ func (r *BatchReader[T]) LoopRead() {
 		} else if r.closedBarrier.IsClosed() {
 			return
 		} else {
-			time.Sleep(50 * time.Microsecond)
+			r.readerYield()
 		}
 	}
 }

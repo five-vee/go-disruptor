@@ -2,6 +2,8 @@ package disruptor
 
 import (
 	"fmt"
+	"runtime"
+	"time"
 
 	"github.com/five-vee/go-disruptor/internal/barrier"
 	"github.com/five-vee/go-disruptor/internal/closer"
@@ -26,6 +28,8 @@ var (
 type Builder[T any] struct {
 	capacity     int64
 	readerGroups [][]ReaderFunc
+	writerYield  func(spins int)
+	readerYield  func()
 }
 
 // NewBuilder returns a builder of a disruptor.
@@ -43,17 +47,47 @@ func (b *Builder[T]) WithReaderGroup(group ...ReaderFunc) *Builder[T] {
 	return b
 }
 
+// WithWriterYield overrides how Write/WriteBatch yields
+// when the buffer is full. yield receives the number of times
+// yield has been called so far in a Write/WriteBatch call.
+func (b *Builder[T]) WithWriterYield(yield func(spins int)) *Builder[T] {
+	b.writerYield = yield
+	return b
+}
+
+// WithReaderYield overrides how ReadLoop yields when the buffer is empty.
+func (b *Builder[T]) WithReaderYield(yield func()) *Builder[T] {
+	b.readerYield = yield
+	return b
+}
+
 // Build builds the disruptor.
 func (b *Builder[T]) Build() (*Disruptor[T], error) {
 	if err := b.validate(); err != nil {
 		return nil, err
 	}
-	d := &Disruptor[T]{
-		capacity: b.capacity,
-		mask:     b.capacity - 1,
-		buffer:   make([]T, b.capacity),
+	writerYield := func(spins int) {
+		const spinMask = (1 << 14) - 1
+		if spins&spinMask == 0 {
+			runtime.Gosched()
+		}
 	}
-	d.readers, d.readBarrier = b.wireReaders(&d.writeCursor, &d.closer, d.buffer)
+	if b.writerYield != nil {
+		writerYield = b.writerYield
+	}
+	readerYield := func() {
+		time.Sleep(50 * time.Microsecond)
+	}
+	if b.readerYield != nil {
+		readerYield = b.readerYield
+	}
+	d := &Disruptor[T]{
+		capacity:    b.capacity,
+		mask:        b.capacity - 1,
+		buffer:      make([]T, b.capacity),
+		writerYield: writerYield,
+	}
+	d.readers, d.readBarrier = b.wireReaders(&d.writeCursor, &d.closer, d.buffer, readerYield)
 	return d, nil
 }
 
@@ -73,7 +107,7 @@ func (b *Builder[T]) validate() error {
 }
 
 // wireReaders wires up the reader dependency graph.
-func (b *Builder[T]) wireReaders(writeCursor *pad.AtomicInt64, writeCloser *closer.Closer, buffer []T) ([]readLooper, barrier.Barrier) {
+func (b *Builder[T]) wireReaders(writeCursor *pad.AtomicInt64, writeCloser *closer.Closer, buffer []T, readerYield func()) ([]readLooper, barrier.Barrier) {
 	var readers []readLooper
 	var upstreamBarrier barrier.Barrier = writeCursor
 	var upstreamClosedBarrier barrier.ClosedBarrier = writeCloser
@@ -86,9 +120,9 @@ func (b *Builder[T]) wireReaders(writeCursor *pad.AtomicInt64, writeCloser *clos
 			var closer *closer.Closer
 			switch x := f.(type) {
 			case singleReaderFunc[T]:
-				r, cursor, closer = reader.NewSingleReader(upstreamBarrier, x.F, upstreamClosedBarrier, buffer)
+				r, cursor, closer = reader.NewSingleReader(upstreamBarrier, x.F, upstreamClosedBarrier, buffer, readerYield)
 			case batchReaderFunc[T]:
-				r, cursor, closer = reader.NewBatchReader(upstreamBarrier, x.F, upstreamClosedBarrier, buffer)
+				r, cursor, closer = reader.NewBatchReader(upstreamBarrier, x.F, upstreamClosedBarrier, buffer, readerYield)
 			}
 			readers = append(readers, r)
 			barrierGroup = append(barrierGroup, cursor)

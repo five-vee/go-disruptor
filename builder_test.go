@@ -12,6 +12,8 @@ func TestBuilder(t *testing.T) {
 		name         string
 		capacity     int64
 		readerGroups [][]disruptor.ReaderFunc
+		writerYield  func(spins int)
+		readerYield  func()
 		wantErr      error
 	}
 	tests := []test{
@@ -60,6 +62,8 @@ func TestBuilder(t *testing.T) {
 					disruptor.SingleReaderFunc(func(*int) {}),
 				},
 			},
+			writerYield: func(int) {},
+			readerYield: func() {},
 		},
 	}
 
@@ -68,6 +72,12 @@ func TestBuilder(t *testing.T) {
 			b := disruptor.NewBuilder[int](test.capacity)
 			for _, group := range test.readerGroups {
 				b = b.WithReaderGroup(group...)
+			}
+			if test.writerYield != nil {
+				b = b.WithWriterYield(test.writerYield)
+			}
+			if test.readerYield != nil {
+				b = b.WithReaderYield(test.readerYield)
 			}
 			d, err := b.Build()
 			if !errors.Is(err, test.wantErr) {
