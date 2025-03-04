@@ -40,11 +40,11 @@ goos: darwin
 goarch: arm64
 pkg: github.com/five-vee/go-disruptor/benchmarks
 cpu: Apple M3
-BenchmarkDisruptor_22-8         106468981               10.95 ns/op            0 B/op          0 allocs/op
-BenchmarkSmartystreets_22-8     131017900                9.187 ns/op           0 B/op          0 allocs/op
-BenchmarkChannel_22-8           43040191                31.49 ns/op            0 B/op          0 allocs/op
+BenchmarkDisruptor_22-8         112661708               10.26 ns/op            0 B/op          0 allocs/op
+BenchmarkSmartystreets_22-8     131429239                9.208 ns/op           0 B/op          0 allocs/op
+BenchmarkChannel_22-8           43865726                31.71 ns/op            0 B/op          0 allocs/op
 PASS
-ok      github.com/five-vee/go-disruptor/benchmarks     5.148s
+ok      github.com/five-vee/go-disruptor/benchmarks     6.219s
 ```
 
 ## Features
@@ -52,7 +52,7 @@ ok      github.com/five-vee/go-disruptor/benchmarks     5.148s
 - [x] Support single producer and single consumer.
 - [ ] ~~Support multiple producers.~~ [^1]
 - [x] Support multiple consumers.
-- [ ] Support different waiting strategies.
+- [x] Support different waiting strategies.
 - [x] Support modifying the buffer directly.
 - [x] Support consumer dependencies.
 - [x] go.pkg.dev documentation.
