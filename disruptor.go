@@ -15,21 +15,23 @@ type Disruptor[T any] struct {
 	mask        int64
 	buffer      []T
 	readers     []readLooper
-	closer      closer.Closer
 	readBarrier barrier.Barrier
+	closed      bool // cached version of closer
 
 	_ [64]byte // padding
 
 	slowestReader pad.Int64 // cached version of readBarrier
 	writeCursor   pad.AtomicInt64
 	currentWriter pad.Int64 // cached version of writeCursor
+	closer        closer.Closer
 }
 
 // Write adds an item to the disruptor.
 // f writes in-place into the ring buffer.
-//
-// It is UNDEFINED BEHAVIOR to call Write after Close.
 func (d *Disruptor[T]) Write(f func(item *T)) {
+	if d.closed {
+		panic("Write() called after Close() was called.")
+	}
 	nextWriter := d.currentWriter.Val + 1
 	d.reserve(nextWriter)
 	f(&d.buffer[nextWriter&d.mask])
@@ -65,9 +67,10 @@ func (d *Disruptor[T]) commit(nextWriter int64) {
 // overhead of sub-slicing is much smaller than the time saved by batching,
 // e.g. when working with SIMD code to write large numbers of items into
 // the disruptor.
-//
-// It is UNDEFINED BEHAVIOR to call WriteBatch after Close.
 func (d *Disruptor[T]) WriteBatch(n int64, f func(ptrs [2]*T, lens [2]int)) {
+	if d.closed {
+		panic("WriteBatch() called after Close() was called.")
+	}
 	if n > d.capacity {
 		panic("WriteBatch() attempted to write more items than capacity allows")
 	}
@@ -99,6 +102,7 @@ func (d *Disruptor[T]) LoopRead() {
 // Close stops the disruptor.
 func (d *Disruptor[T]) Close() {
 	d.closer.Close()
+	d.closed = true
 }
 
 // unwrap returns the range of data from `i` to `j`,
