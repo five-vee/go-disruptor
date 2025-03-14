@@ -3,6 +3,9 @@
   "manifest": {
     "version": 1,
     "install": {
+      "go": {
+        "pkg-path": "go"
+      },
       "golangci-lint": {
         "pkg-path": "golangci-lint"
       },
@@ -29,20 +32,141 @@
   },
   "packages": [
     {
+      "attr_path": "go",
+      "broken": false,
+      "derivation": "/nix/store/3rx89v4m5zawcv75zf4hvgixwpqqig5v-go-1.23.6.drv",
+      "description": "Go Programming language",
+      "install_id": "go",
+      "license": "BSD-3-Clause",
+      "locked_url": "https://github.com/flox/nixpkgs?rev=d69ab0d71b22fa1ce3dbeff666e6deb4917db049",
+      "name": "go-1.23.6",
+      "pname": "go",
+      "rev": "d69ab0d71b22fa1ce3dbeff666e6deb4917db049",
+      "rev_count": 762848,
+      "rev_date": "2025-03-05T11:18:42Z",
+      "scrape_date": "2025-03-07T00:30:55Z",
+      "stabilities": [
+        "staging",
+        "unstable"
+      ],
+      "unfree": false,
+      "version": "1.23.6",
+      "outputs_to_install": [
+        "out"
+      ],
+      "outputs": {
+        "out": "/nix/store/yjqrp3d93mxa2g80j57whyk55xwxgl7r-go-1.23.6"
+      },
+      "system": "aarch64-darwin",
+      "group": "toplevel",
+      "priority": 5
+    },
+    {
+      "attr_path": "go",
+      "broken": false,
+      "derivation": "/nix/store/nr1f8hf0p4xfj8d492fzpsbglm1c5hqc-go-1.23.6.drv",
+      "description": "Go Programming language",
+      "install_id": "go",
+      "license": "BSD-3-Clause",
+      "locked_url": "https://github.com/flox/nixpkgs?rev=d69ab0d71b22fa1ce3dbeff666e6deb4917db049",
+      "name": "go-1.23.6",
+      "pname": "go",
+      "rev": "d69ab0d71b22fa1ce3dbeff666e6deb4917db049",
+      "rev_count": 762848,
+      "rev_date": "2025-03-05T11:18:42Z",
+      "scrape_date": "2025-03-07T00:30:55Z",
+      "stabilities": [
+        "staging",
+        "unstable"
+      ],
+      "unfree": false,
+      "version": "1.23.6",
+      "outputs_to_install": [
+        "out"
+      ],
+      "outputs": {
+        "out": "/nix/store/8998mrpahiciqy699yxfwaw29r89pfrm-go-1.23.6"
+      },
+      "system": "aarch64-linux",
+      "group": "toplevel",
+      "priority": 5
+    },
+    {
+      "attr_path": "go",
+      "broken": false,
+      "derivation": "/nix/store/k2jg2hxgd41cj1vh4pvg1zviywh7vmnh-go-1.23.6.drv",
+      "description": "Go Programming language",
+      "install_id": "go",
+      "license": "BSD-3-Clause",
+      "locked_url": "https://github.com/flox/nixpkgs?rev=d69ab0d71b22fa1ce3dbeff666e6deb4917db049",
+      "name": "go-1.23.6",
+      "pname": "go",
+      "rev": "d69ab0d71b22fa1ce3dbeff666e6deb4917db049",
+      "rev_count": 762848,
+      "rev_date": "2025-03-05T11:18:42Z",
+      "scrape_date": "2025-03-07T00:30:55Z",
+      "stabilities": [
+        "staging",
+        "unstable"
+      ],
+      "unfree": false,
+      "version": "1.23.6",
+      "outputs_to_install": [
+        "out"
+      ],
+      "outputs": {
+        "out": "/nix/store/65s6ymzbxsydbka49gr3jsv0lnybbzyc-go-1.23.6"
+      },
+      "system": "x86_64-darwin",
+      "group": "toplevel",
+      "priority": 5
+    },
+    {
+      "attr_path": "go",
+      "broken": false,
+      "derivation": "/nix/store/h8r2axj3z8fdb367cmrb044jw2s75ffs-go-1.23.6.drv",
+      "description": "Go Programming language",
+      "install_id": "go",
+      "license": "BSD-3-Clause",
+      "locked_url": "https://github.com/flox/nixpkgs?rev=d69ab0d71b22fa1ce3dbeff666e6deb4917db049",
+      "name": "go-1.23.6",
+      "pname": "go",
+      "rev": "d69ab0d71b22fa1ce3dbeff666e6deb4917db049",
+      "rev_count": 762848,
+      "rev_date": "2025-03-05T11:18:42Z",
+      "scrape_date": "2025-03-07T00:30:55Z",
+      "stabilities": [
+        "staging",
+        "unstable"
+      ],
+      "unfree": false,
+      "version": "1.23.6",
+      "outputs_to_install": [
+        "out"
+      ],
+      "outputs": {
+        "out": "/nix/store/8zgc91q1igzgmg36mglxrk8qa1r2dvsd-go-1.23.6"
+      },
+      "system": "x86_64-linux",
+      "group": "toplevel",
+      "priority": 5
+    },
+    {
       "attr_path": "golangci-lint",
       "broken": false,
       "derivation": "/nix/store/pxljw0r1fyqviw4yldbgyfhsvw9ylmpj-golangci-lint-1.64.5.drv",
       "description": "Fast linters Runner for Go",
       "install_id": "golangci-lint",
       "license": "GPL-3.0-or-later",
-      "locked_url": "https://github.com/flox/nixpkgs?rev=0196c0175e9191c474c26ab5548db27ef5d34b05",
+      "locked_url": "https://github.com/flox/nixpkgs?rev=d69ab0d71b22fa1ce3dbeff666e6deb4917db049",
       "name": "golangci-lint-1.64.5",
       "pname": "golangci-lint",
-      "rev": "0196c0175e9191c474c26ab5548db27ef5d34b05",
-      "rev_count": 758135,
-      "rev_date": "2025-02-24T03:24:50Z",
-      "scrape_date": "2025-02-25T02:25:54Z",
+      "rev": "d69ab0d71b22fa1ce3dbeff666e6deb4917db049",
+      "rev_count": 762848,
+      "rev_date": "2025-03-05T11:18:42Z",
+      "scrape_date": "2025-03-07T00:30:55Z",
       "stabilities": [
+        "staging",
         "unstable"
       ],
       "unfree": false,
@@ -64,14 +188,15 @@
       "description": "Fast linters Runner for Go",
       "install_id": "golangci-lint",
       "license": "GPL-3.0-or-later",
-      "locked_url": "https://github.com/flox/nixpkgs?rev=0196c0175e9191c474c26ab5548db27ef5d34b05",
+      "locked_url": "https://github.com/flox/nixpkgs?rev=d69ab0d71b22fa1ce3dbeff666e6deb4917db049",
       "name": "golangci-lint-1.64.5",
       "pname": "golangci-lint",
-      "rev": "0196c0175e9191c474c26ab5548db27ef5d34b05",
-      "rev_count": 758135,
-      "rev_date": "2025-02-24T03:24:50Z",
-      "scrape_date": "2025-02-25T02:25:54Z",
+      "rev": "d69ab0d71b22fa1ce3dbeff666e6deb4917db049",
+      "rev_count": 762848,
+      "rev_date": "2025-03-05T11:18:42Z",
+      "scrape_date": "2025-03-07T00:30:55Z",
       "stabilities": [
+        "staging",
         "unstable"
       ],
       "unfree": false,
@@ -93,14 +218,15 @@
       "description": "Fast linters Runner for Go",
       "install_id": "golangci-lint",
       "license": "GPL-3.0-or-later",
-      "locked_url": "https://github.com/flox/nixpkgs?rev=0196c0175e9191c474c26ab5548db27ef5d34b05",
+      "locked_url": "https://github.com/flox/nixpkgs?rev=d69ab0d71b22fa1ce3dbeff666e6deb4917db049",
       "name": "golangci-lint-1.64.5",
       "pname": "golangci-lint",
-      "rev": "0196c0175e9191c474c26ab5548db27ef5d34b05",
-      "rev_count": 758135,
-      "rev_date": "2025-02-24T03:24:50Z",
-      "scrape_date": "2025-02-25T02:25:54Z",
+      "rev": "d69ab0d71b22fa1ce3dbeff666e6deb4917db049",
+      "rev_count": 762848,
+      "rev_date": "2025-03-05T11:18:42Z",
+      "scrape_date": "2025-03-07T00:30:55Z",
       "stabilities": [
+        "staging",
         "unstable"
       ],
       "unfree": false,
@@ -122,14 +248,15 @@
       "description": "Fast linters Runner for Go",
       "install_id": "golangci-lint",
       "license": "GPL-3.0-or-later",
-      "locked_url": "https://github.com/flox/nixpkgs?rev=0196c0175e9191c474c26ab5548db27ef5d34b05",
+      "locked_url": "https://github.com/flox/nixpkgs?rev=d69ab0d71b22fa1ce3dbeff666e6deb4917db049",
       "name": "golangci-lint-1.64.5",
       "pname": "golangci-lint",
-      "rev": "0196c0175e9191c474c26ab5548db27ef5d34b05",
-      "rev_count": 758135,
-      "rev_date": "2025-02-24T03:24:50Z",
-      "scrape_date": "2025-02-25T02:25:54Z",
+      "rev": "d69ab0d71b22fa1ce3dbeff666e6deb4917db049",
+      "rev_count": 762848,
+      "rev_date": "2025-03-05T11:18:42Z",
+      "scrape_date": "2025-03-07T00:30:55Z",
       "stabilities": [
+        "staging",
         "unstable"
       ],
       "unfree": false,
@@ -151,14 +278,15 @@
       "description": "Dead simple, no frills Go cross compile tool",
       "install_id": "gox",
       "license": "MPL-2.0",
-      "locked_url": "https://github.com/flox/nixpkgs?rev=0196c0175e9191c474c26ab5548db27ef5d34b05",
+      "locked_url": "https://github.com/flox/nixpkgs?rev=d69ab0d71b22fa1ce3dbeff666e6deb4917db049",
       "name": "gox-1.0.1",
       "pname": "gox",
-      "rev": "0196c0175e9191c474c26ab5548db27ef5d34b05",
-      "rev_count": 758135,
-      "rev_date": "2025-02-24T03:24:50Z",
-      "scrape_date": "2025-02-25T02:25:54Z",
+      "rev": "d69ab0d71b22fa1ce3dbeff666e6deb4917db049",
+      "rev_count": 762848,
+      "rev_date": "2025-03-05T11:18:42Z",
+      "scrape_date": "2025-03-07T00:30:55Z",
       "stabilities": [
+        "staging",
         "unstable"
       ],
       "unfree": false,
@@ -180,14 +308,15 @@
       "description": "Dead simple, no frills Go cross compile tool",
       "install_id": "gox",
       "license": "MPL-2.0",
-      "locked_url": "https://github.com/flox/nixpkgs?rev=0196c0175e9191c474c26ab5548db27ef5d34b05",
+      "locked_url": "https://github.com/flox/nixpkgs?rev=d69ab0d71b22fa1ce3dbeff666e6deb4917db049",
       "name": "gox-1.0.1",
       "pname": "gox",
-      "rev": "0196c0175e9191c474c26ab5548db27ef5d34b05",
-      "rev_count": 758135,
-      "rev_date": "2025-02-24T03:24:50Z",
-      "scrape_date": "2025-02-25T02:25:54Z",
+      "rev": "d69ab0d71b22fa1ce3dbeff666e6deb4917db049",
+      "rev_count": 762848,
+      "rev_date": "2025-03-05T11:18:42Z",
+      "scrape_date": "2025-03-07T00:30:55Z",
       "stabilities": [
+        "staging",
         "unstable"
       ],
       "unfree": false,
@@ -209,14 +338,15 @@
       "description": "Dead simple, no frills Go cross compile tool",
       "install_id": "gox",
       "license": "MPL-2.0",
-      "locked_url": "https://github.com/flox/nixpkgs?rev=0196c0175e9191c474c26ab5548db27ef5d34b05",
+      "locked_url": "https://github.com/flox/nixpkgs?rev=d69ab0d71b22fa1ce3dbeff666e6deb4917db049",
       "name": "gox-1.0.1",
       "pname": "gox",
-      "rev": "0196c0175e9191c474c26ab5548db27ef5d34b05",
-      "rev_count": 758135,
-      "rev_date": "2025-02-24T03:24:50Z",
-      "scrape_date": "2025-02-25T02:25:54Z",
+      "rev": "d69ab0d71b22fa1ce3dbeff666e6deb4917db049",
+      "rev_count": 762848,
+      "rev_date": "2025-03-05T11:18:42Z",
+      "scrape_date": "2025-03-07T00:30:55Z",
       "stabilities": [
+        "staging",
         "unstable"
       ],
       "unfree": false,
@@ -238,14 +368,15 @@
       "description": "Dead simple, no frills Go cross compile tool",
       "install_id": "gox",
       "license": "MPL-2.0",
-      "locked_url": "https://github.com/flox/nixpkgs?rev=0196c0175e9191c474c26ab5548db27ef5d34b05",
+      "locked_url": "https://github.com/flox/nixpkgs?rev=d69ab0d71b22fa1ce3dbeff666e6deb4917db049",
       "name": "gox-1.0.1",
       "pname": "gox",
-      "rev": "0196c0175e9191c474c26ab5548db27ef5d34b05",
-      "rev_count": 758135,
-      "rev_date": "2025-02-24T03:24:50Z",
-      "scrape_date": "2025-02-25T02:25:54Z",
+      "rev": "d69ab0d71b22fa1ce3dbeff666e6deb4917db049",
+      "rev_count": 762848,
+      "rev_date": "2025-03-05T11:18:42Z",
+      "scrape_date": "2025-03-07T00:30:55Z",
       "stabilities": [
+        "staging",
         "unstable"
       ],
       "unfree": false,

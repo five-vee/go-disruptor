@@ -15,6 +15,7 @@ version = 1
 ##  $ flox show gum     <- show all versions of a package
 ## -------------------------------------------------------------------
 [install]
+go.pkg-path = "go"
 golangci-lint.pkg-path = "golangci-lint"
 gox.pkg-path = "gox"
 # gum.pkg-path = "gum"
